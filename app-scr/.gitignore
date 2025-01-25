@@ -1,0 +1,82 @@
+# Node.js dependencies
+/node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Angular build outputs
+/dist/
+out-tsc/
+tmp/
+.angular/
+
+# Environment files (sensitive information)
+*.env
+.env.local
+.env.development
+.env.production
+
+# Compiled TypeScript files
+**/*.js
+**/*.js.map
+**/*.d.ts
+
+# Logs and debugging files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+/logs
+*.log
+
+# IDE-specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# Angular cache
+/.angular/cache/
+/.angular/cache/babel-webpack/
+/.angular/cache/webpack/
+
+# Testing related files
+/coverage/
+*.lcov
+/lcov-report/
+/test-results/
+
+# Build artifacts
+/.turbo
+/.nx
+/hmr
+/esbuild
+/bazel-out/
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+*.orig
+
+# MacOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux specific
+*~ 
+
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Git folder ignored files
+.git/
+
+# Firebase hosting cache (if using Firebase)
+.firebase/
+.firebaserc
+firebase-debug.log

@@ -1,0 +1,61 @@
+# Dependencias de Composer
+/vendor/
+composer.lock
+
+# Archivos de entorno y configuración sensible
+.env
+.env.backup
+.env.*.local
+*.env
+
+# Caché y logs
+/storage/*.key
+/storage/*.log
+/storage/framework/*
+/storage/logs/*
+/storage/oauth-private.key
+/storage/oauth-public.key
+
+# Configuración de IDEs
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Caché de la aplicación
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+
+# Node.js (si usas frontend con npm)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*.tmp
+
+# Composer internals
+/.composer
+
+# PHPUnit
+phpunit.xml
+/phpunit.xml.cache
+
+# Archivos generados por Laravel/Lumen
+public/storage
+public/hot
+homestead.yaml
+Homestead.json
+
+# Logs del servidor
+*.log
+*.out
+
+# Otros archivos temporales
+/storage/debugbar/*
