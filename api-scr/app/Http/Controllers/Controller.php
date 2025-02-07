@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Laravel\Lumen\Routing\Controller as BaseController;
+use DateTime;
 
 class Controller extends BaseController
 {
@@ -22,6 +23,28 @@ class Controller extends BaseController
         $letras = $this->convert1toInvers($longitud_1er) . $this->convert1toInvers($longitud_2do);
         $letra_rand = $this->convertAto1($rand);
         return $letra_rand.$cabecera.$cabecera_cola.$letras.$cola_cola;
+    }
+
+    public static function convertDateToText($fecha, $tipo=0) {
+        // Crear un objeto DateTime con la fecha
+        $date = new DateTime($fecha);
+
+        // Obtener el día de la semana, día, mes y año
+        $dias = ['Sunday' => 'Domingo', 'Monday' => 'Lunes', 'Tuesday' => 'Martes', 'Wednesday' => 'Miércoles', 'Thursday' => 'Jueves', 'Friday' => 'Viernes', 'Saturday' => 'Sábado'];
+        $meses = ['January' => 'ENE', 'February' => 'FEB', 'March' => 'MAR', 'April' => 'ABR', 'May' => 'MAY', 'June' => 'JUN', 'July' => 'JUL', 'August' => 'AGO', 'September' => 'SEP', 'October' => 'OCT', 'November' => 'NOV', 'December' => 'DIC'];
+        $clase = ['January' => 'm-ene', 'February' => 'm-feb', 'March' => 'm-mar', 'April' => 'm-abr', 'May' => 'm-may', 'June' => 'm-jun', 'July' => 'm-jul', 'August' => 'm-ago', 'September' => 'm-sep', 'October' => 'm-oct', 'November' => 'm-nov', 'December' => 'm-dic'];
+
+        $diaSemana = $dias[$date->format('l')]; // Traducir día de la semana
+        $dia = $date->format('d');
+        $mes = $meses[$date->format('F')]; // Traducir mes
+        $clase = $clase[$date->format('F')]; // Traducir mes
+        $anio = $date->format('Y');
+
+        // Formatear la fecha como texto
+        if($tipo == 1) {
+            return [$dia,$mes,$anio,$clase];
+        }
+        return "$dia $mes $anio";
     }
 
     public function convertAto1($num){

@@ -15,64 +15,35 @@ class ReporteExport {
         $pdf->SetDrawColor(216, 216, 216);        
         $pdf->SetAutoPageBreak(true,5); 
         #region [Cabecera]
-            $pdf->SetXY(0,0);
-            $pdf->SetFillColor(255, 255, 255);
-            $pdf->Cell(60,30,"",0,0,"",1);
-            $pdf->Image(Storage::disk('img')->path('311.png'),5,4,45,10,'PNG','');
-            // $pdf->AddFont('Montserrat-Bold','','Montserrat-Bold.php', public_path('assets/fonts/Montserrat'));
-            // $pdf->AddFont('Montserrat-Regular','','Montserrat-Regular.php', public_path('assets/fonts/Montserrat'));
-            $pdf->SetFont('Helvetica', 'U', 10);
-            $pdf->SetFillColor(22, 33, 33);
-            $pdf->SetTextColor(255,255,255);
-            $pdf->Cell(150,5,"311consultores.com.mx",0,0,"C",1,"https://thispersondoesnotexist.com/");
-            //Titulo
-            $pdf->SetXY(80,9);
-            $pdf->SetTextColor(0,0,0);
-            $pdf->Cell(100,5,utf8_decode(strtoupper($data->sTitulo)),0,0,"C");
-            $pdf->SetXY(80,16);
+            $pdf->setXY(0,0);
+            $pdf->Image(Storage::disk('img')->path('logo-MAI.png'),10,3,50,25,'PNG','');
+            $pdf->Image(Storage::disk('img')->path('logo.png'),175,3,20,20,'PNG','');
+            $pdf->setXY(4,28);
+            $pdf->setFillColor(255,255,255); 
+            $pdf->SetFont('Arial','B',11);
+            $pdf->SetDrawColor(0,0,0);
+            $pdf->SetLineWidth(0.4);
+            $pdf->Cell(202,7,utf8_decode(strtoupper($data->sTitulo)),1,0,"C",1);
+            $pdf->setXY(4,35.5);
+            // $pdf->setFillColor(242, 242, 242);
+            $pdf->SetFont('Arial','B',10);
+            $pdf->Cell(50.5,5,"CLIENTE","LR",0,"C",1);
+            $pdf->Cell(50.5,5,"FECHA","LR",0,"C",1);
+            $pdf->Cell(50.5,5,"EQUIPO","LR",0,"C",1);
+            $pdf->Cell(50.5,5,"REPORTE","LR",0,"C",1);
+            $pdf->setXY(4,41);
+            $pdf->SetFont('Arial','',11);
+            $pdf->SetTextColor(232, 101, 27);
+            $pdf->Cell(50.5,5,utf8_decode(strtoupper($data->sCliente)),"LBR",0,"C",1);
+            $pdf->Cell(50.5,5,date('d/m/Y',strtotime($data->sFecha)),"LBR",0,"C",1);
+            $pdf->Cell(50.5,5,utf8_decode(strtoupper($data->sEquipo)),"LBR",0,"C",1);
+            $pdf->Cell(50.5,5,utf8_decode(strtoupper($data->sReporte)),"LBR",0,"C",1);
         #endregion
-        #region [Division]
-            $pdf->SetXY(0,21);
-            $pdf->SetFillColor(22, 33, 33);
-            $pdf->Cell(210,1.5,"",0,0,"",1);
-        #endregion
-        #region [Información Seleccionada y de Contacto]
-            $pdf->SetXY(4, 25);
-            $pdf->SetFont('Helvetica', '', 12);
-            $pdf->SetDrawColor(22, 33, 33);
-            $pdf->Cell(132,5,utf8_decode("INFORMACION"),"L");
-            //Cliente
-            $pdf->SetXY(5, 33);
-            $pdf->SetFillColor(244, 244, 244);
-            $pdf->SetFont('Helvetica', '', 12);
-            $pdf->Cell(25,6,"Cliente",1,0,"L",1);
-            $pdf->SetFont('Helvetica', '', 11);            
-            $pdf->SetFillColor(255, 255, 255);
-            $pdf->Cell(35,6,utf8_decode(strtoupper($data->sCliente)),1,0,"C",1);
-            //Proyecto            
-            // $iCInteres= $data["info_lote"]->iPrecioM2Contado + (($data["info_plazo"]->iInteres/100) * $data["info_lote"]->iPrecioM2Contado);
-            $pdf->SetX($pdf->GetX()+5);
-            $pdf->SetFillColor(244, 244, 244);
-            $pdf->SetFont('Helvetica', '', 12);
-            $pdf->Cell(31,6,utf8_decode("Proyecto"),1,0,"L",1);
-            $pdf->SetFillColor(255, 255, 255);
-            $pdf->SetFont('Helvetica', '', 11);
-            $pdf->Cell(35,6,utf8_decode(strtoupper($data->sEquipo)),1,0,"C",1);
-            //Fecha
-            $pdf->SetX($pdf->GetX()+5);
-            $pdf->SetFillColor(244, 244, 244);
-            $pdf->SetFont('Helvetica', '', 12);
-            $pdf->Cell(28,6,utf8_decode("Fecha"),1,0,"L",1);
-            $pdf->SetFillColor(255, 255, 255);
-            $pdf->SetFont('Helvetica', '', 11);
-            $pdf->Cell(38,6,date('d/m/Y',strtotime($data->sFecha)),1,0,"C",1);
-        #endregion
-    
         #region [Evidencias]
-            $pdf->setXY(4,42);
+            $pdf->setXY(4,50);
             $index=1;
             foreach($data->objEvidencias as $evidencia) {
-                $pdf->setFillColor(255, 255, 255);
+                $pdf->setFillColor(242, 242, 242);
                 $pdf->SetTextColor(0, 0, 0);
                 $pdf->SetFont('Arial','B',11);                
                 $pdf->setX(4);

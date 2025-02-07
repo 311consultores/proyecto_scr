@@ -167,20 +167,20 @@ class BitacoraExport {
             $pdf->Cell(74,70,"",1,0,"C");
             $pdf->Cell(63,35,"",1,0,"C");
             if(isset($fotografias[0])){
-                $pdf->Image($fotografias[0],79,102,63,35,explode('.',$fotografias[0])[3],'');
+                $pdf->Image($fotografias[0],79,102,63,35,explode('.',$fotografias[0])[1],'');
             }
             $pdf->Cell(63,35,"",1,0,"C");
             if(isset($fotografias[1])){
-                $pdf->Image($fotografias[1],142,102,63,35,explode('.',$fotografias[1])[3],'');
+                $pdf->Image($fotografias[1],142,102,63,35,explode('.',$fotografias[1])[1],'');
             }            
             $pdf->setXY(79,137);
             $pdf->Cell(63,35,"",1,0,"C");
             if(isset($fotografias[2])){
-                $pdf->Image($fotografias[2],79,137,63,35,explode('.',$fotografias[2])[3],'');
+                $pdf->Image($fotografias[2],79,137,63,35,explode('.',$fotografias[2])[1],'');
             } 
             $pdf->Cell(63,35,"",1,0,"C");
             if(isset($fotografias[3])){
-                $pdf->Image($fotografias[3],142,137,63,35,explode('.',$fotografias[3])[3],'');
+                $pdf->Image($fotografias[3],142,137,63,35,explode('.',$fotografias[3])[1],'');
             } 
 
             $pdf->setXY(5,174);
@@ -367,7 +367,7 @@ class BitacoraExport {
             $pdf->Cell(74,4,"",0,0,"C");
             $pdf->setXY(82,250);
             $data[26] = substr($data[26],0,320);
-            $pdf->MultiCell(123,4, utf8_decode(strtoupper($data[26])),1,'L');
+            $pdf->MultiCell(123,4, strtoupper(utf8_decode($data[26])),1,'L');
             $pdf->setXY(0,264);
             $pdf->setFillColor(237, 125, 49);
             $pdf->Cell(210,1,"",0,0,"C",1);
