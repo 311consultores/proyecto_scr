@@ -1,0 +1,56 @@
+<div class="section container-fluid px-xl-5 px-lg-4 px-sm-3 px-sm-1">
+    <div class="page-title-box d-flex align-items-center justify-content-end py-2">
+        <div class="page-title-right">
+            <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item">Panel Admin.</li>
+                <li class="breadcrumb-item active">Bitacora de Actividades</li>
+            </ol>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body card-lote">
+            <div class="header">
+                <h4 class="card-title">Bitacora de Actividades</h4>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <p class="card-title-desc">En este módulo podrás visualizar, buscar & editar las Bitacoras de Actividades capturadas</p>
+                </div>
+                <div class="row mt-5">
+                    @for (item of $table; track item) {
+                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                            <div class="card card-aunt">
+                                <div class="card-block">
+                                    <div class="card-header-aunt">
+                                        <div class="d-none d-sm-block image-header">
+                                            <img class="img-fluid rounded-circle" style="width:65px;height: 65px;" src="/imagenes/img-grua.jpg" alt="dashboard-user">
+                                        </div>
+                                        <div class="card-title">
+                                            <h5 class="text-truncate">{{ item.reporte }}</h5>
+                                            <span class="text-truncate">CONSTRUCTORA ARTHUR</span>
+                                            <span class="date text-truncate">{{ item.fecha_creacion }}</span>
+                                        </div>
+                                    </div>
+                                    <ul class="task-list">
+                                        @for (actividad of item.actividades; track actividad) {
+                                        <li>
+                                            <div class="task-title d-flex align-items-center justify-content-between">
+                                                <h6 class="my-0 text-truncate">{{ actividad.titulo }}</h6>
+                                                <span>9:30</span>
+                                            </div>
+                                            <i class="task-icon bg-c-green"></i>
+                                            <p class="text-muted text-truncate">{{ actividad.desc }}</p>
+                                        </li>
+                                        }
+                                    </ul>
+                                    <div class="widget-49-meeting-action d-flex justify-content-end">
+                                        <a href="#" class="btn btn-sm btn-flash-border-primary" (click)="getPDF(item.id)">EDITAR</a>
+                                        <a href="#" class="btn btn-sm btn-flash-border-primary" (click)="getPDF(item.id)">VISUALIZAR</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

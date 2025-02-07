@@ -1,0 +1,12 @@
+<div class="carousel-container">
+    <div class="carousel">
+        @if(images.length > 0) {
+                <img [src]="images[currentIndex]" alt="Carousel Image" class="img-responsive">
+                <a class="nav-button prev" (click)="prevImage()">&#10094;</a>
+                <a class="nav-button next" (click)="nextImage()">&#10095;</a>
+                <fa-icon class="btn btn-sm btn-danger btn-Eliminar" [icon]="['fas', 'trash']" (click)=eliminarImagen(currentIndex)></fa-icon>
+        } @else {
+            <img src="/imagenes/no-image.png" class="img-responsive">
+        }
+    </div>
+</div>

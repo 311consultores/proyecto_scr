@@ -1,0 +1,47 @@
+.m_form_error {
+    color: var(--gris);
+    font-weight: 500;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    b {
+        font-weight: 700;
+    }
+    &.warning {
+        background-color: #FFE680;
+    }
+    &.danger {
+        background-color: #FFEBD7;
+    }
+    &.success {
+        background-color: #caffe1;
+    }
+}
+
+.m_form_error_info {
+    display:flex;
+    font-size: 15px;
+    align-items: center;
+    gap: 10px;
+    width: 95%;
+}
+
+.ico-close {
+    cursor: pointer;
+    width: 18px !important;
+    height: 18px !important;
+    -webkit-mask-image: url('/svgs/x-circle.svg');
+    mask-image: url('/svgs/x-circle.svg');
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    &.warning {
+        background-color: #6C5700;
+    }
+    &.danger {
+        background-color: #FF6500;
+    }
+    &.success {
+        background-color: #12a351;
+    }
+}

@@ -1,0 +1,69 @@
+<div class="page-wrapper chiller-theme" [class]="bSidebar ? 'toggled' : ''">
+    <nav id="sidebar" class="sidebar-wrapper">
+      <div class="sidebar-content">
+        <div class="bg-dark"></div>
+        <div class="sidebar-brand">
+          <a class="cp">{{ currentTime }} </a>
+          @if(bShowMenu) {
+            <div id="close-sidebar" class="text-white" (click)="toggleSidebar()">
+              <i class="fa fa-times"></i>
+            </div>
+          }          
+        </div>
+        <div class="sidebar-header">
+          <div class="user-pic">
+            <img class="" src="/imagenes/logotipo.png"
+              alt="User picture">
+          </div>
+        </div>
+        <!-- sidebar-search  -->
+        <div class="sidebar-menu">
+          <ul>
+            <li class="header-menu">
+              <span>Reportes</span>
+            </li>
+            <li>
+              <a [routerLink]="['']" [routerLinkActive]="'active'" class="item-menu">
+                <i class="fa fa-file-text" aria-hidden="true"></i>
+                <span>Bitacoras</span>
+              </a>
+            </li>
+            <li>
+              <a [routerLink]="['inspeccion']" [routerLinkActive]="'active'" class="item-menu">
+                <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                <span>Inspecciones</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <!-- sidebar-menu  -->
+      </div>
+      <!-- sidebar-content  -->
+      <div class="sidebar-footer">
+        <a style="cursor: pointer;" (click)="logOut()">
+          <i class="fa fa-power-off"></i>
+        </a>
+      </div>
+    </nav>
+    <!-- page-content" -->
+    <main class="container-fluid bg-contenido px-0">
+      <nav class="navbar navbar-expand-lg border-bottom" style="background-color: white !important;">
+        <!-- Container wrapper -->
+        <div class="px-xl-5 px-lg-4 px-sm-3 px-sm-1justify-content-center justify-content-md-between">
+          <!-- Left links -->
+          <ul class="navbar-nav flex-row">
+            <li class="navbar-item me-2 me-lg-0">
+              <a class="cp nav-link" (click)="toggleSidebar()">
+                <i class="fa fa-bars" style="font-size: 20px;"></i>
+              </a>
+            </li>
+            <li class="nav-item me-2 me-lg-0 d-none d-md-inline-block">
+              <a class="nav-link" href="#">PANEL ADMIN.</a>
+            </li>
+          </ul>
+        </div>
+        <!-- Container wrapper -->
+      </nav>
+      <router-outlet />
+    </main>
+</div>

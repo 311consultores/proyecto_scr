@@ -1,0 +1,142 @@
+<section class="body">
+    <div class="container py-5">
+        <div class="row justify-content-center body-titulo">
+            <div class="col-10 pt-4 body-header">
+                <div class="title">
+                    <img src="/svgs/libreta-lupa.svg" alt="">
+                    <h2>Bitacora de Actividades</h2>
+                    <p class="subtitle">Registra tus <b>actividades</b> realizadas durante tu horario de trabajo</p>
+                </div>
+            </div>
+            <div class="card col-10 mt-3">
+                <div class="card-body">
+                    <div class="accordion" id="accordion-form">
+                        <div class="accordion-item">
+                            <h5 class="card-title accordion-button {{ bitacora.id_bitacora == null ? '' : 'collapsed' }}" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#collapse-form" 
+                                [attr.aria-expanded]="bitacora.id_bitacora == null ? 'true' : 'false'"
+                                aria-controls="collapse-form">
+                                {{ bitacora.id_bitacora == null ? 'Registro de Actividad' : bitacora.sitio_proyecto }}
+                            </h5>
+                        </div>
+                        <form #miFormulario="ngForm" class="row needs-validation collapse {{ bitacora.id_bitacora == null ? 'show' : '' }}" 
+                            id="collapse-form" aria-labelledby="headingOne" data-bs-parent="#accordion-form" 
+                            novalidate (ngSubmit)="enviarFormularioBitacora()">
+                            <div class="field padding-bottom--24 col-md-4 col-sm-12">
+                                <label for="reporte" class="required">Reporte</label>
+                                <input type="text" name="reporte" id="reporte" [(ngModel)]="bitacora.folio_reporte" placeholder="MAI-092-1S" 
+                                    required #folio_reporteRef="ngModel" [class.is-invalid]="folio_reporteRef.invalid && folio_reporteRef.touched"
+                                    style="text-transform: uppercase;">
+                                <div class="invalid-feedback">*Campo obligatorio*</div>
+                            </div>
+                            <div class="field padding-bottom--24 col-md-8">
+                                <label for="sitio_proyecto" class="required">Proyecto y/o Sitio</label>
+                                <input type="text" name="sitio_proyecto" placeholder="Ingresa el proyecto o sitio" [(ngModel)]="bitacora.sitio_proyecto"
+                                    required #sitio_proyectoRef="ngModel" [class.is-invalid]="sitio_proyectoRef.invalid && sitio_proyectoRef.touched">
+                                <div class="invalid-feedback">*Campo obligatorio*</div>
+                            </div>
+                            <div class="field padding-bottom--24 col-md-8 col-sm-12">
+                                <label for="cliente">Cliente</label>
+                                <input type="text" name="cliente" placeholder="Ingresa el cliente" [(ngModel)]="bitacora.cliente">
+                            </div>
+                            <div class="field padding-bottom--24 col-md-4 col-sm-12">
+                                <label for="fecha" class="required">Fecha</label>
+                                <input type="date" name="fecha" [(ngModel)]="bitacora.fecha" required
+                                    #fechaRef="ngModel" [class.is-invalid]="fechaRef.invalid && fechaRef.touched">
+                                    <div class="invalid-feedback">*Campo obligatorio*</div>
+                            </div>
+                            <div class="field padding-bottom--24 col-12">
+                                <label for="equipo">Equipo</label>
+                                <input type="text" name="equipo" placeholder="Ingresa el nombre del equipo" [(ngModel)]="bitacora.equipo">
+                            </div>
+                            <div class="d-flex justify-content-end align-items-center mt-3 gap-2">
+                                <app-alerta
+                                    class="w-100"
+                                    message="{{funciones.alerta.sMessage}}"
+                                    type="{{funciones.alerta.sTipo}}"
+                                    isVisible="{{funciones.alerta.bShow}}">
+                                </app-alerta>
+                                <button class="btn btn-success" [disabled]="miFormulario.invalid">
+                                    @if(funciones.bLoad) {
+                                        <div class="spinner"></div>
+                                    } @else {
+                                        {{ bitacora.id_bitacora == null ? 'Iniciar' : 'Editar' }}
+                                    }
+                                </button>   
+                            </div>     
+                        </form>
+                    </div>     
+                </div>
+            </div>
+            @if(bitacora.actividades.length > 0) {
+                <div class="col-10 px-0 mt-2">
+                    <h5 class="title-section m-0 p-0">Mis actividades</h5>
+                </div>
+            }
+            @for(actividad of bitacora.actividades; track $index) {
+                <div class="card col-10">
+                    <div class="card-body">
+                        <div class="accordion" id="accordion-actividad{{$index}}">
+                            <div class="accordion-item">
+                                <h5 class="card-title accordion-button {{ actividad.id_actividad == 0 ? '' : 'collapsed' }}" 
+                                    data-bs-toggle="collapse" 
+                                    [attr.data-bs-target]="'#collapse-form'+$index" 
+                                    [attr.aria-expanded]="actividad.id_actividad == 0 ? 'true' : 'false'" 
+                                    [attr.aria-controls]="'collapse-form'+$index">
+                                    {{ actividad.id_actividad == 0 ? 'ACTIVIDAD #'+($index+1) : actividad.orden_trabajo }}
+                                </h5>
+                            </div>
+                            <form class="row needs-validation accordion-collapse collapse {{ actividad.id_actividad == 0 ? 'show' : '' }}" 
+                                id="collapse-form{{$index}}" [attr.data-bs-parent]="'#accordion-actividad'+$index"
+                                (ngSubmit)="enviarFormularioActividad(actividad, $index)">
+                                <div class="field padding-bottom--24 col-md-6">
+                                    <label for="orden_trabajo" class="required">Orden de trabajo (OT)</label>
+                                    <input type="text" name="orden_trabajo" placeholder="Ingresa el OT" [(ngModel)]="actividad.orden_trabajo">
+                                    <div class="invalid-feedback">*Campo obligatorio*</div>
+                                </div>
+                                <div class="field padding-bottom--24 col-md-6">
+                                    <label for="equipo" class="required">Equipo</label>
+                                    <input type="text" name="equipo" placeholder="Ingresa el Equipo" [(ngModel)]="actividad.equipo">
+                                    <div class="invalid-feedback">*Campo obligatorio*</div>
+                                </div>
+                                <div class="field padding-bottom--24 col-md-8">
+                                    <label for="observacion" class="required">Observación</label>
+                                    <textarea type="text" class="form-control description" name="observacion" placeholder="Ingresa tus observaciones" [(ngModel)]="actividad.observacion"
+                                    (input)="saltoLinea($index, $event)"></textarea>
+                                    <div class="invalid-feedback">*Campo obligatorio*</div>
+                                </div>
+                                <div class="field padding-bottom--24 col-md-4">
+                                    <label for="observacion" class="required">Evidencia</label>
+                                    <app-galeria [images]="actividad.fotografias" (photosEvent)="actividad.fotografias = $event"></app-galeria>           
+                                </div>
+                                <div class="d-flex justify-content-end align-items-center mt-3 gap-2">
+                                    <app-alerta
+                                        class="w-100"
+                                        (updateAlert)="actividad.alerta = $event"
+                                        [message]="funciones.alerta.sMessage"
+                                        [type]="funciones.alerta.sTipo"
+                                        [isVisible]="actividad.alerta">
+                                    </app-alerta>                         
+                                    <app-webcam [images]="actividad.fotografias" (photosEvent)="actividad.fotografias = $event"></app-webcam>
+                                    <button class="btn-success btn" type="submit">
+                                        @if(funciones.bLoad) {
+                                            <div class="spinner"></div>
+                                        } @else {
+                                            {{ actividad.id_actividad == 0 ? 'Guardar' : 'Editar' }}
+                                        }
+                                    </button> 
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+            @if(bitacora.actividades.length > 0) {
+                <div class="col-10 d-flex justify-content-end px-0">
+                    <button class="btn btn-primary mt-3" (click)="finalizarCaptura()">finalizar</button>     
+                </div>
+            }
+        </div>
+    </div>    
+</section>

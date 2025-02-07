@@ -1,1 +1,201 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Forum&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 16px;
+    overflow: auto;
+    /* Paleta de Colores */
+    --principal: #162121;
+    --secundario: #506465;
+    --negro: #2c2420;
+    --gris: #494D55;
+    --gris-ligth: #7D828B;
+    --naranja-principal: #ff8342;
+    --naranja-secundario: #f63f1d;
+    --crema: #E2DED7;
+    --success: #12a351;
+    --info: #ffd200;
+    --danger: #E60026;
+    --sb-track-color: #fff;
+    --link: #186ADE;
+    /* Calendario */
+    --ene: #3FAAC3;
+    --bg-ene: #cef6ff;
+    --feb: #596EB4;
+    --bg-feb: #d7e0ff;
+    --mar: #A76DAE;
+    --bg-mar: #fbd2ff;
+    --abr: #CB73A1;
+    --bg-abr: #ffcce6;
+    --may: #E93C3D;
+    --bg-may: #ffcece;
+    --jun: #EE653F;
+    --bg-jun: #ffcabb;
+    --jul: #F57B49;
+    --bg-jul: #ffded1;
+    --ago: #E6CD4D;
+    --bg-ago: #fff5c2;
+    --sep: #A8BC3F;
+    --bg-sep: #f8ffd8;
+    --oct: #70BD4F;
+    --bg-oct: #e0ffd2;
+    --nov: #5AB8A6;
+    --bg-nov: #dffff9;
+    --dic: ;
+    --bg-dic: ;
+}
+  
+body::-webkit-scrollbar {
+width: 6px;
+}
+
+body::-webkit-scrollbar-track {
+background: var(--sb-track-color);
+border-radius: 3px;
+}
+
+body::-webkit-scrollbar-thumb {
+background: var(--principal);
+border-radius: 3px;
+}
+  
+@supports not selector(::-webkit-scrollbar) {
+    body {
+        scrollbar-color: var(--principal)
+                        var(--sb-track-color);
+    }
+}
+
+.titulo {
+    font-family: "Forum", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+.text-secundario {
+    color: var(--principal) !important;
+    font-weight: 900;
+}
+
+.cp {
+    cursor: pointer;
+}
+
+.is__invalid-input {
+    border-color: #e57373;
+}
+  
+.is__invalid-error {
+    color: #e57373;
+    font-size: 13px;
+    padding: 0px;
+}
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 80px;
+    height: 25px;
+}
+  
+/* Hide default HTML checkbox */
+    .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+  
+  /* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    color: white;
+    font-size: 13px;
+    padding: 2px 5px;
+    font-weight: bold;
+    top: 0;
+    left: 0;
+    right: -4px;
+    bottom: 0;
+    background-color: #e57373;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+  
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+  
+input:checked + .slider {
+    background-color: #81c784;
+}
+  
+input:focus + .slider {
+    box-shadow: 0 0 1px #81c784;
+}
+  
+input:checked + .slider:before {
+    -webkit-transform: translateX(516px);
+    -ms-transform: translateX(56px);
+    transform: translateX(56px); 
+}
+  
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+  
+.slider.round:before {
+    border-radius: 50%;
+}
+.breadcrumb {
+    .breadcrumb-item {
+        font-weight: 400;
+    }
+    .active {
+        color: var(--naranja-principal) !important;
+        font-weight: 600;
+    }
+}
+.widget-49 .widget-49-meeting-action {
+    text-align: right;
+}
+
+.widget-49 .widget-49-meeting-action a {
+    text-transform: uppercase;
+}
+
+.btn-flash-border-primary:hover {
+    color: var(--link) !important;
+}
+@media only screen and (max-width: 575px){
+    .text-secundario {
+        font-size: 5px !important;
+    }
+}
+.spinner {
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    border: 3.8px solid;
+    border-color: #efefef;
+    border-right-color: var(--naranja-principal);
+    animation: spinner-d3wgkg 1.2s infinite linear;
+}
+
+@keyframes spinner-d3wgkg {
+    to {
+        transform: rotate(1turn);
+    }
+}

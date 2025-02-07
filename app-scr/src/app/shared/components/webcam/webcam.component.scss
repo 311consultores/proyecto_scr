@@ -1,0 +1,192 @@
+
+/* Estilos generales del modal */
+.modal-webcam {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro */
+    opacity: 0; /* Inicialmente invisible */
+    transition: opacity 0.3s ease; /* Animación para la opacidad */
+    &.show {
+        display: block; /* Hacemos visible el modal */
+        animation: modalIn 0.5s ease-out forwards; /* Animación para la entrada */
+    }
+    .modal-close {
+        position: absolute;
+        z-index: 5;
+        right: 25px;
+        top: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        fa-icon {
+            color: white;
+            font-size: 40px;
+        }
+    }
+    .modal-content-webcam {
+        height: 100%;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2;
+    }
+    .centrado-camera {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        z-index: 3;
+        padding: 0px 30px;
+        border: 2px solid rgb(233, 122, 122);
+        .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(255, 255, 255, 0.5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            &.camera {
+                background-color: rgb(233, 122, 122);
+            }
+            &.check {
+                fa-icon {
+                    margin-top: 3px;
+                }
+                background-color: var(--oct);
+            }
+            margin-bottom: 20px;
+            z-index: 5;
+        }
+        .reels-photos {
+            position: relative;
+            height: 60px;
+            width: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            img {
+                height: 60px;
+                height: 60px;
+                border-radius: 5px;
+            }
+            .bg-reels {
+                position: absolute;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 25px;
+                font-weight: 500;
+                color: white;
+                border-radius: 5px;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.253);
+                z-index: 3;
+            }
+            fa-icon {
+                color: rgb(177, 12, 0);
+                position: absolute;
+                top: -15px;
+                right: -9px;
+                z-index: 4;
+                font-size: 25px;
+                cursor: pointer;
+            }
+        }
+    }    
+}
+
+.centrado-camera::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 5px solid transparent;
+    border-radius: 0px;
+    box-sizing: border-box;
+    z-index: 3;
+}
+
+.centrado-camera.active::before {
+    animation: borderPulse 0.5s ease-in-out;
+}
+
+.icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.centrado-camera.active .icon.camera {
+    animation: clickAnimation 0.5s ease;
+}
+
+.webcam-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+  
+video {
+    width: 100%;
+}
+ 
+.icon fa-icon {
+    color: white;
+    font-size: 24px;
+}
+
+@keyframes modalIn {
+    0% {
+        transform: translateY(-100%); /* Comienza desde arriba fuera de la pantalla */
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0); /* Llega a su posición final */
+        opacity: 1;
+    }
+}
+
+@keyframes borderPulse {
+    0% {
+        border-color: rgba(233, 122, 122, 1);
+        transform: scale(1);
+    }
+    50% {
+        border-color: rgba(233, 122, 122, 1);
+        transform: scale(1.05);
+    }
+    100% {
+        border-color: rgba(233, 122, 122, 1);
+        transform: scale(1);
+    }
+}
+
+@keyframes clickAnimation {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

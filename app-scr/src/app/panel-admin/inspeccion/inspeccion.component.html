@@ -1,0 +1,54 @@
+<div class="section container-fluid px-xl-5 px-lg-4 px-sm-3 px-sm-1">
+    <div class="page-title-box d-flex align-items-center justify-content-end py-2">
+        <div class="page-title-right">
+            <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item">Panel Admin.</li>
+                <li class="breadcrumb-item active">Reporte de Inspección</li>
+            </ol>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body card-lote">
+            <div class="header">
+                <h4 class="card-title">Reporte de Inspección</h4>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <p class="card-title-desc">En este módulo podrás visualizar las inspecciones realizadas ordenadas por fecha</p>
+                </div>
+            </div>
+            <div class="row">
+                @for (item of $table; track item) {
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                        <div class="card card-margin">
+                            <div class="card-header no-border">
+                                <h5 class="card-title">{{ item.name }}</h5>
+                            </div>
+                            <div class="card-body pt-0">
+                                <div class="widget-49">
+                                    <div class="widget-49-title-wrapper">
+                                        <div class="widget-49-date {{ item.created_at[3] }}">
+                                            <span class="widget-49-date-day">{{ item.created_at[0] }}</span>
+                                            <span class="widget-49-date-month">{{item.created_at[1] }}</span>
+                                        </div>
+                                        <div class="widget-49-meeting-info">
+                                            <span class="widget-49-pro-title">EQUIPO: {{ item.columnas[1].Respuesta }}</span>
+                                            <span class="widget-49-meeting-time">{{ item.columnas[5].Respuesta }} a {{ item.columnas[6].Respuesta }} Hrs</span>
+                                        </div>
+                                    </div>
+                                    <ol class="widget-49-meeting-points">
+                                        <li class="widget-49-meeting-item"><span>Expand module is removed</span></li>
+                                        <li class="widget-49-meeting-item"><span>Data migration is in scope</span></li>
+                                        <li class="widget-49-meeting-item"><span>Session timeout increase to 30 minutes</span></li>
+                                    </ol>
+                                    <div class="widget-49-meeting-action">
+                                        <a class="btn btn-sm btn-flash-border-primary">EDITAR</a>
+                                        <a class="btn btn-sm btn-flash-border-primary">PDF</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }                
+            </div>
+        </div>
+    </div>
+</div>

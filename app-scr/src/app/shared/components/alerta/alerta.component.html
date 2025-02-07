@@ -1,0 +1,20 @@
+@if(mostrar) {
+    <div class="w-100 h-100">
+        @if (['success', 'warning', 'danger'].includes(type)) {
+            <div class="m_form_error {{type}}">
+                <div class="m_form_error_info {{ type }}">
+                    <img class="img" src="/svgs/alert-{{ type }}.svg" />
+                    <span class="txt">
+                        <b>
+                            @if (type === 'success') { Completado: }
+                            @else if (type === 'warning') { Alerta: }
+                            @else { Error: }
+                        </b> 
+                        {{ message }}
+                    </span>
+                </div>
+                <div class="ico-close {{ type }}" (click)="closeAlert()"></div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,33 @@
+
+<!-- Button trigger modal -->
+<fa-icon class="btn btn-info text-white" (click)="m_inicia_captura()" [icon]="['fas', 'camera']"></fa-icon>
+<div class="modal-webcam {{ modal ? 'show' : '' }}">
+    <div class="modal-close">
+        <fa-icon [icon]="['fas', 'xmark']" (click)="stopWebcam()"></fa-icon>
+        <fa-icon [icon]="['fas', 'camera-rotate']" (click)="toggleCamera()"></fa-icon>
+    </div>
+    <div class="modal-content-webcam">
+        <video #videoElement autoplay playsinline></video>
+    </div>
+    <div class="centrado-camera" [class.active]="isTakingPhoto">
+        <div class="reels-photos">
+            @if(iCont > 0) {
+                <fa-icon [icon]="['fas', 'circle-xmark']" class="ico-close-foto" (click)="deleteLastPhoto()"></fa-icon>
+            }
+            <div class="bg-reels">
+                {{iCont > 0 ? '+'+iCont : ''}}
+            </div>
+            @if(iCont > 0) {
+                <img [src]="fotografias[fotografias.length-1]" class="img-fluid">
+            }@else {
+                <img src="/imagenes/no-image.png" class="img-fluid">
+            }
+        </div>
+        <div class="icon camera" (click)="capturarFoto()">
+            <fa-icon [icon]="['fas', 'camera']"></fa-icon>
+        </div>
+        <div class="icon check" (click)="m_finaliza_captura()">
+            <fa-icon [icon]="['fas', 'check']"></fa-icon>
+        </div>     
+    </div>
+</div>
