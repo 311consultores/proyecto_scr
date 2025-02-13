@@ -157,6 +157,7 @@ class BitacoraController extends Controller
             $bitacora = $request->only([
                 'folio_reporte', 'bSitio', 'proyecto', 'sitio_id', 'cliente_id', 'fecha', 'equipo'
             ]);
+            $bitacora['bFinalizado'] = 0;
             $bitacora['dt_creacion'] = date('Y-m-d');
             $bitacora['activo'] = 1;
 
@@ -265,6 +266,49 @@ class BitacoraController extends Controller
                 "ok" => false,
                 "message" => "Plataforma temporalmente fuera de servicio"
             ], 500); // Código HTTP 500 para errores del servidor
+        }
+    }
+
+    //Admin Methods
+    public function adminIndex() {
+        try {
+            $bitacoras = DB::table('bitacora as b')
+            ->select(
+                'b.id_bitacora',
+                'b.folio_reporte',
+                'b.bSitio',
+                'b.proyecto',
+                'b.fecha',
+                's.sitio',
+                DB::raw("COALESCE(
+                    JSON_ARRAYAGG(
+                        IF(d.id_actividad IS NOT NULL, JSON_OBJECT(
+                            'orden_trabajo', d.orden_trabajo,
+                            'observacion', d.observacion,
+                            'hora_creacion', TIME_FORMAT(d.hora_creacion, '%H:%i')
+                        ), NULL)
+                    ), '[]'
+                ) as detalles")
+            )
+            ->leftJoin('det_bitacora as d', 'b.id_bitacora', '=', 'd.bitacora_id')
+            ->join('cat_clientes as c', 'b.cliente_id', '=', 'c.id_cliente')
+            ->leftJoin('cat_sitios as s', 'b.sitio_id', '=', 's.id_sitio')
+            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.bSitio', 'b.proyecto', 'b.fecha', 'b.equipo', 'c.cliente', 's.sitio', 'b.dt_creacion')
+            ->get()
+            ->map(function ($bitacora) {
+                $detalles = json_decode($bitacora->detalles, true);
+                $bitacora->fecha = $this->convertDateToText($bitacora->fecha);
+                $bitacora->detalles = array_filter($detalles, function ($item) {
+                    return $item !== null;
+                });        
+                return $bitacora;
+            });
+        
+            return response()->json(['ok' => true, 'data' => $bitacoras]);
+          
+        }catch(\Exception $e) {
+            Log::error("Error en [BitacoraController::adminIndex]: ".$e->getMessage());
+            return ["ok" => false, "message"=> "Error al obtener las bitacoras"];
         }
     }
 }
