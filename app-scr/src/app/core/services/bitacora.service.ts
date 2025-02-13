@@ -30,4 +30,9 @@ export class BitacoraService {
   enviarFormularioActividad(actividad : any) : Observable<any> {
     return this.http.post<any>( environment.apiUrl+"bitacora/guardarDetBitacora", actividad);
   }
+
+  //Admin
+  indexAdmin() {
+    return this.http.get<any>(environment.apiUrl+"bitacora/admin/index");
+  }
 }

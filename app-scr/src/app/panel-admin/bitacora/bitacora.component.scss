@@ -7,9 +7,6 @@
     position: relative;
     margin: 0;
     padding: 30px 0 0;
-    height: 170px !important;
-    overflow-y: auto !important;
-    scrollbar-width: none;
     border-bottom: 1px var(--crema) solid;
     p {
         margin: 0px;
@@ -124,4 +121,9 @@
 .card.full-card {
     z-index: 99999;
     border-radius: 0;
+}
+.btn_mostrar {
+    text-align: center;
+    text-decoration: underline;
+    color: var(--link);
 }

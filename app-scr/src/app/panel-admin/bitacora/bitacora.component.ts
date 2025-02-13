@@ -22,12 +22,7 @@ export class BitacoraComponent {
   }
 
   async cargaInicial() {
-    this._bitacoraService.getReports()
-    .pipe(
-      finalize(() =>  {
-
-      })
-    )
+    this._bitacoraService.indexAdmin()
     .subscribe({
       next: (response) => {
         if(response.ok) {
