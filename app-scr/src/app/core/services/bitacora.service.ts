@@ -10,6 +10,14 @@ export class BitacoraService {
 
 
   constructor(private http: HttpClient) {   }
+  
+  index() {
+    return this.http.get<any>(environment.apiUrl+"bitacora/index");
+  }
+
+  recuperarFolio(json : any) {
+    return this.http.post<any>(environment.apiUrl+"bitacora/recuperarFolio", json);
+  }
 
   getReports(): Observable<any> {
     return this.http.get<any>(environment.apiUrl+"reportes/getReportesEvidencia");

@@ -6,6 +6,8 @@ import { BitacoraService } from '../../core/services/bitacora.service';
 import { WebcamComponent } from '../../shared/components/webcam/webcam.component';
 import { AlertaComponent } from '../../shared/components/alerta/alerta.component';
 import { GaleriaComponent } from '../../shared/components/galeria/galeria.component';
+import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faRotate } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
 
 interface Actividad {
@@ -23,17 +25,22 @@ interface Actividad {
     CommonModule,
     AlertaComponent,
     WebcamComponent,
-    GaleriaComponent
+    GaleriaComponent,
+    FontAwesomeModule
   ],
   templateUrl: './bitacora-actividad.component.html',
   styleUrl: './bitacora-actividad.component.scss'
 })
 export class BitacoraActividadComponent {
+  public catalogos : any = {"clientes" : [], "sitios": []};
   public bitacora = {
     id_bitacora: null,
     folio_reporte: "",
-    sitio_proyecto: "",
-    cliente: "",
+    proyecto: "",
+    bSitio: false,
+    sitio_id : 0,
+    sitio: '',
+    cliente_id: 0,
     fecha: this.formatearFecha(new Date()),
     equipo: "",
     actividades: [] as Actividad[]
@@ -48,8 +55,11 @@ export class BitacoraActividadComponent {
   }
 
   constructor (
+      private library: FaIconLibrary,
       private _bitacoraService: BitacoraService ) 
-    { }
+    { 
+      library.addIcons(faRotate);
+    }
 
   ngOnInit() {
     this.cargarBitacora();
@@ -58,6 +68,11 @@ export class BitacoraActividadComponent {
   cargarBitacora() {
     if(localStorage.getItem("data-bitacora") != null)
       this.bitacora = JSON.parse(decodeURIComponent(atob(localStorage.getItem("data-bitacora")+"")));
+    this._bitacoraService.index().subscribe({
+      next: (response) => {
+        this.catalogos = response.data;
+      }
+    })
   }
 
   async enviarFormularioBitacora() {
@@ -117,6 +132,22 @@ export class BitacoraActividadComponent {
     });
   }
 
+  async recuperarFolio() {
+    this._bitacoraService.recuperarFolio({
+      cliente_id : this.bitacora.cliente_id
+    }).subscribe({
+      next: (response) => {
+        if(response.ok) {
+          this.bitacora.folio_reporte = response.data.folio;
+          return;
+        }
+        this.funciones.alerta.bShow = "true";
+        this.funciones.alerta.sMessage= response.message;
+        this.funciones.alerta.sTipo = "danger";
+      }
+    });
+  }
+
   nuevaActividad() {
     this.bitacora.actividades.push({
       id_actividad: 0,
@@ -126,6 +157,12 @@ export class BitacoraActividadComponent {
       fotografias: [],
       alerta: 'false'
     });
+  }
+
+  //#region [Metodos Privados]
+  setSitio() {
+    let sitio = this.catalogos.sitios.filter((x: any)=> x.id_sitio == this.bitacora.sitio_id);
+    this.bitacora.sitio = sitio[0].sitio;
   }
 
   formatearFecha(fecha: Date): string {
@@ -150,4 +187,6 @@ export class BitacoraActividadComponent {
       textarea.value = texto;
     }
   }
+  //#endregion
+
 }
