@@ -25,6 +25,8 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     });
     // Rutas de Bitacora
     $router->group(['prefix' => 'bitacora'], function () use ($router) {
+        $router->get('index','BitacoraController@index');
+        $router->post('recuperarFolio','BitacoraController@recuperarFolio');
         $router->post('guardarBitacora','BitacoraController@guardarBitacora');
         $router->post('guardarDetBitacora', 'BitacoraController@guardarDetBitacora');
         $router->get('exportarPDF/{id}', 'BitacoraController@exportPDF');

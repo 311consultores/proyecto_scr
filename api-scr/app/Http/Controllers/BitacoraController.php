@@ -11,6 +11,42 @@ use Log;
 
 class BitacoraController extends Controller
 {
+    public function index() {
+        try {
+            $catalogos = ["sitios" => null, "clientes" => null];
+            $catalogos["sitios"] = DB::table("cat_sitios")->select('id_sitio','sitio','abreviatura')->get();
+            $catalogos["clientes"] = DB::table("cat_clientes")->select('id_cliente','cliente','abreviatura')->get();
+            return ["ok" => true, "data"=> $catalogos];
+        }catch(\Exception $e) {
+            Log::error("Error en [BitacoraController::index]: ".$e->getMessage());
+            return ["ok" => false, "message"=> "Error al obtener los catálogos"];
+        }
+    }
+
+    public function recuperarFolio(Request $request) {
+        try {
+            $cliente = DB::table("cat_clientes")->where("id_cliente",$request->cliente_id)->first();
+            if($cliente) {
+                $folio= $cliente->abreviatura."-".date('m');
+                $last_folio = DB::table("bitacora")
+                ->where("folio_reporte","like","%".$folio."%")
+                ->orderBy("id_bitacora","desc")
+                ->first();
+                if($last_folio) {
+                    $cont = explode('-', $last_folio->folio_reporte)[2];
+                    $cont = intval($cont);
+                    $cont = $cont > 9 ? $cont++ : "0".($cont++);
+                    return [ "ok" => true, "data" => ["folio" => $folio."-".$cont ] ];
+                }
+                return [ "ok" => true, "data" => ["folio" => $folio."-"."01" ] ];
+            }
+            return ["ok" => false, "message"=> "No pudimos encontrar al cliente seleccionado"];
+        }catch(\Exception $e) {
+            Log::error("Error en [BitacoraController::recuperarFolio]: ".$e->getMessage());
+            return ["ok" => false, "message"=> "Error al obtener el folio"];
+        }
+    }
+
     public function exportPDF($id)
     {
         $data = [];
@@ -89,8 +125,7 @@ class BitacoraController extends Controller
         #region [Validaciones]
             $validator = Validator::make($request->all(),[
                 "folio_reporte" => 'required|max:15',
-                "sitio_proyecto" => 'required|max:300',
-                "cliente" => 'max:300',
+                "cliente_id" => 'required',
                 "fecha" => 'required|date',
                 "equipo" => 'max:300',
             ],[
@@ -120,7 +155,7 @@ class BitacoraController extends Controller
 
             // Obtener los datos del request como un array
             $bitacora = $request->only([
-                'folio_reporte', 'sitio_proyecto', 'cliente', 'fecha', 'equipo'
+                'folio_reporte', 'bSitio', 'proyecto', 'sitio_id', 'cliente_id', 'fecha', 'equipo'
             ]);
             $bitacora['dt_creacion'] = date('Y-m-d');
             $bitacora['activo'] = 1;
