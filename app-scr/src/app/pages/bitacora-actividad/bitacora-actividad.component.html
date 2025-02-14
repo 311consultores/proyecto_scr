@@ -98,7 +98,7 @@
                 </div>
             }
             @for(actividad of bitacora.actividades; track $index) {
-                <div class="card col-10">
+                <div class="card col-10 {{ $index > 0 ? 'mt-2' : '' }}">
                     <div class="card-body">
                         <div class="accordion" id="accordion-actividad{{$index}}">
                             <div class="accordion-item">
