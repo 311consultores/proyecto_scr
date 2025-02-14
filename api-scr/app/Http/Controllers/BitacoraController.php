@@ -35,7 +35,8 @@ class BitacoraController extends Controller
                 if($last_folio) {
                     $cont = explode('-', $last_folio->folio_reporte)[2];
                     $cont = intval($cont);
-                    $cont = $cont > 9 ? $cont++ : "0".($cont++);
+                    $cont++;
+                    $cont = $cont > 9 ? $cont : "0".$cont;
                     return [ "ok" => true, "data" => ["folio" => $folio."-".$cont ] ];
                 }
                 return [ "ok" => true, "data" => ["folio" => $folio."-"."01" ] ];
@@ -47,110 +48,38 @@ class BitacoraController extends Controller
         }
     }
 
-    public function exportPDF($id)
-    {
-        $data = [];
-        $data = DB::table('wprq_frm_fields as field')
-        ->select('field.id', 'field.name as Columna', 'field_res.meta_value as Respuesta')
-        ->join('wprq_frm_item_metas as field_res','field.id','=','field_res.field_id')
-        ->where('field.form_id', 3)
-        ->where('field_res.item_id', $id)
-        ->orderBy('field.field_order', 'ASC')
-        ->get();
-        $respuestas = [];
-        $fotografias = "";
-        foreach($data as $respuesta) {
-            array_push($respuestas, $respuesta->Respuesta);
-            if($respuesta->Columna == 'FOTOGRAFÍAS'){
-                $fotografias = $respuesta->Respuesta;
-            }
-        }
-        try{
-            //Obtenemos los Nombres de las imagenes
-            $fotografias = explode(';',$fotografias);
-            $fotografias = str_replace('i:','',$fotografias);
-            $fotografias = str_replace('}','',$fotografias);
-            $fotografias = str_replace('{','',$fotografias);
-            $getNamePhotos = DB::table('wprq_postmeta')
-            ->select('meta_value as Fotografia')
-            ->where('meta_key','_wp_attached_file')
-            ->whereIn('post_id',$fotografias)
-            ->get();
-
-            //Acedemos remotamente al servidor de imagenes
-            $ftp_conn=ftp_connect(getenv('FTP_HOST'),getenv('FTP_PORT'));
-            $login = ftp_login($ftp_conn,getenv('FTP_USER'),getenv('FTP_PASSWORD'));
-            
-
-            //Descargamos las fotos
-            $fotografias = [];
-            $fotografiasDelete = [];
-            foreach($getNamePhotos as $foto) {
-                $fotografia = explode('/',$foto->Fotografia)[2];
-                $local_file = Storage::disk('temps')->path($fotografia);
-                $server_file = $fotografia;
-
-                ftp_get($ftp_conn, $local_file, $server_file, FTP_BINARY);
-
-                array_push($fotografias,$local_file);
-                array_push($fotografiasDelete,$fotografia);
-            }
-            ftp_close($ftp_conn);
-
-        }catch(\Exception $e) {
-            return "No se ha podido acceder al servidor de Imagenes ".$e->getMessage();
-        }
-        try {
-            $pdf = new BitacoraExport();
-            $pdfStream = $pdf->generatePDF($respuestas, $fotografias);
-        }catch(\Exception $e) {
-            return "Error al generar el PDF. Error: [".$e->getMessage()."]";
-        }
-        try{
-            //Eliminamos imagenes temp
-            for($i=0;$i<count($fotografiasDelete); $i++) {
-                Storage::disk('temps')->delete($fotografiasDelete[$i]);
-            }
-        }catch(\Exception $e) {
-            return "Error al Eliminar Imagenes Temp. Error: [".$e->getMessage()."]";
-        }
-            
-
-        return $pdfStream;
-
-        
-    }
-
     public function guardarBitacora(Request $request) {
         #region [Validaciones]
-            $validator = Validator::make($request->all(),[
-                "folio_reporte" => 'required|max:15',
-                "cliente_id" => 'required',
-                "fecha" => 'required|date',
-                "equipo" => 'max:300',
-            ],[
-                'folio_reporte.required' => "El campo 'Reporte' es obligatorio",
-                'folio_reporte.max' => "El campo 'Reporte' acepta maximo 15 caracteres",
-                'sitio_proyecto.required' => "El campo 'Sitio y/o Proyecto' es obligatorio",
-                'sitio_proyecto.max' => "El campo 'Sitio y/o Proyecto' acepta maximo 300 caracteres",
-                'cliente.max' => "El campo 'Cliente' acepta maximo 300 caracteres",
-                'fecha.required' => "El campo 'Fecha' es obligatorio",
-                'fecha.date' => "El campo 'Fecha' no es una fecha valida",
-                'equipo.max' => "El campo 'Equipo' acepta maximo 300 caracteres"
-            ]);
-
-            if ($validator->fails()) {
-                $errores = [];
-                foreach ($validator->errors()->all() as $key => $mensaje) {
-                    array_push($errores, $mensaje);
-                }
-                return response()->json([
-                    "ok" => false,
-                    "message" => $errores
-                ], 422);
+        $validator = Validator::make($request->all(),[
+            "folio_reporte" => 'required|max:15',
+            "cliente_id" => 'required',
+            "fecha" => 'required|date',
+            "equipo" => 'max:300',
+        ],[
+            'folio_reporte.required' => "El campo 'Reporte' es obligatorio",
+            'folio_reporte.max' => "El campo 'Reporte' acepta maximo 15 caracteres",
+            'sitio_proyecto.required' => "El campo 'Sitio y/o Proyecto' es obligatorio",
+            'sitio_proyecto.max' => "El campo 'Sitio y/o Proyecto' acepta maximo 300 caracteres",
+            'cliente.max' => "El campo 'Cliente' acepta maximo 300 caracteres",
+            'fecha.required' => "El campo 'Fecha' es obligatorio",
+            'fecha.date' => "El campo 'Fecha' no es una fecha valida",
+            'equipo.max' => "El campo 'Equipo' acepta maximo 300 caracteres"
+        ]);
+        if ($validator->fails()) {
+            $errores = [];
+            foreach ($validator->errors()->all() as $key => $mensaje) {
+                array_push($errores, $mensaje);
             }
-        #endregion
+            return response()->json([
+                "ok" => false,
+                "message" => $errores
+            ], 422);
+        }
+        #endregion        
         try {
+            if($request->id_bitacora > 0) {
+                return $this->editarBitacora($request);
+            }
             DB::beginTransaction();
 
             // Obtener los datos del request como un array
@@ -268,7 +197,10 @@ class BitacoraController extends Controller
             ], 500); // Código HTTP 500 para errores del servidor
         }
     }
+    //Genericos
+    public function editarBitacora(Request $resquest) {
 
+    }
     //Admin Methods
     public function adminIndex() {
         try {
@@ -311,4 +243,112 @@ class BitacoraController extends Controller
             return ["ok" => false, "message"=> "Error al obtener las bitacoras"];
         }
     }
+
+    public function obtenerBitacoraPorId($id) {
+        try {
+            $bitacora = DB::table('bitacora as b')
+            ->select(
+                'b.id_bitacora',
+                'b.folio_reporte',
+                'b.bSitio',
+                'b.proyecto',
+                'b.fecha',
+                'b.sitio_id',
+                's.sitio',
+                'b.cliente_id',
+                'c.cliente',
+                'b.equipo',
+                DB::raw("COALESCE(
+                    JSON_ARRAYAGG(
+                        IF(d.id_actividad IS NOT NULL, JSON_OBJECT(
+                            'id_actividad', d.id_actividad,
+                            'equipo', d.equipo,
+                            'orden_trabajo', d.orden_trabajo,
+                            'observacion', d.observacion
+                        ), NULL)
+                    ), '[]'
+                ) as actividades")
+            )
+            ->leftJoin('det_bitacora as d', 'b.id_bitacora', '=', 'd.bitacora_id')
+            ->leftJoin('cat_sitios as s','s.id_sitio', '=', 'b.sitio_id')
+            ->leftJoin('cat_clientes as c','c.id_cliente', '=', 'b.cliente_id')
+            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.bSitio', 'b.proyecto', 'b.fecha', 'b.equipo', 'b.cliente_id', 'b.sitio_id','s.sitio','c.cliente')
+            ->where('id_bitacora', $id)
+            ->get()
+            ->map(function ($bitacora) {
+                $actividades = json_decode($bitacora->actividades, true);
+                $bitacora->actividades = $actividades[0] !== null ? $actividades : [];
+                //Buscamos las fotografias si cuenta
+                foreach($bitacora->actividades as &$actividad) {
+                    $actividad["fotografias"] = DB::table('fotos_bitacora')
+                    ->select("id_foto","path")
+                    ->where('actividad_id',$actividad["id_actividad"])
+                    ->get()
+                    ->map(function($foto) {
+                        $base64 = $this->getPhotoBase64($foto->path);
+                        if($base64 != null) {
+                            $foto = $base64;
+                        }
+                        return $foto;
+                    });
+                }
+                unset($actividad);
+                return $bitacora;
+            });
+            return [ "ok" => true, "data" => $bitacora ];
+        } catch(\Exception $e) {
+            Log::error("Método [obtenerBitacoraPorId] - Error: " . $e->getMessage());
+            return response()->json([
+                "ok" => false,
+                "message" => "Plataforma temporalmente fuera de servicio"]
+            ); // Código HTTP 500 para errores del servidor
+        }
+    }
+
+    //Reporte
+    public function generarReporteBitacora($id) {
+        try {
+            $bitacora = json_decode(json_encode($this->obtenerBitacoraPorId($id)));
+            if($bitacora->ok) {
+                return BitacoraExport::generar($bitacora->data[0], 1);
+            }
+            //Error al obtener la información de la bitacora
+            return [ 
+                "ok" => false,
+                "message" => "Ha ocurrido un error al generar el PDF"
+            ];            
+        } catch(\Exception $e) {
+            Log::error("Método [generarReporteBitacora] - Error: " . $e->getMessage());
+            return response()->json([
+                "ok" => false,
+                "message" => "Plataforma temporalmente fuera de servicio"]
+            ); // Código HTTP 500 para errores del servidor
+        }
+        
+    }
+
+    #region [Métodos Privados]
+    public function getPhotoBase64($nombreArchivo)
+    {
+        // Verificar si el archivo existe
+        if (!Storage::disk("reportes")->exists($nombreArchivo)) {
+            return null;
+        }
+
+        // Leer el contenido del archivo
+        $fileContent = Storage::disk("reportes")->get($nombreArchivo);
+
+        // Convertir el contenido a base64
+        $base64Content = base64_encode($fileContent);
+
+        // Obtener el tipo MIME del archivo
+        $mimeType = Storage::disk("reportes")->mimeType($nombreArchivo);
+
+        // Reconstruir el base64 con el formato correcto
+        $base64Image = 'data:' . $mimeType . ';base64,' . $base64Content;
+
+        // Devolver el base64 reconstruido
+        return $base64Image;
+    }
+    #endregion
 }
