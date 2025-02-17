@@ -221,6 +221,7 @@ class BitacoraController extends Controller
             ]); // Código HTTP 500 para errores del servidor
         }
     }
+
     //Genericos
     public function editarBitacora(Request $request) {
         try {
@@ -313,6 +314,7 @@ class BitacoraController extends Controller
             ]);
         }
     }
+
     //Admin Methods
     public function adminIndex() {
         try {
@@ -339,6 +341,7 @@ class BitacoraController extends Controller
             ->join('cat_clientes as c', 'b.cliente_id', '=', 'c.id_cliente')
             ->leftJoin('cat_sitios as s', 'b.sitio_id', '=', 's.id_sitio')
             ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.bSitio', 'b.proyecto', 'b.fecha', 'b.equipo', 'c.cliente', 's.sitio', 'b.dt_creacion','b.bFinalizado')
+            ->orderBy("b.fecha","desc")
             ->get()
             ->map(function ($bitacora) {
                 $detalles = json_decode($bitacora->detalles, true);
@@ -351,7 +354,7 @@ class BitacoraController extends Controller
         
             return response()->json(['ok' => true, 'data' => $bitacoras]);
           
-        }catch(\Exception $e) {
+        } catch(\Exception $e) {
             Log::error("Error en [BitacoraController::adminIndex]: ".$e->getMessage());
             return ["ok" => false, "message"=> "Error al obtener las bitacoras"];
         }
@@ -420,6 +423,80 @@ class BitacoraController extends Controller
                 "ok" => false,
                 "message" => "Plataforma temporalmente fuera de servicio"]
             ); // Código HTTP 500 para errores del servidor
+        }
+    }
+
+    public function poblarFiltros() {
+        try {
+            $sitios = DB::table("cat_sitios")->select('id_sitio','sitio as nombre')->get();
+            $clientes = DB::table("cat_clientes")->select('id_cliente','cliente as nombre')->get();
+            $registros = DB::table('bitacora as b')
+            ->select('b.id_bitacora','b.folio_reporte as nombre')
+            ->orderBy("b.fecha","desc")
+            ->limit(100)
+            ->get();
+
+            return ["ok" => true, "data" => [
+                "sitios" => $sitios,
+                "clientes" => $clientes,
+                "registros" => $registros,
+            ]];
+        } catch(\Exception $e) {
+            Log::error("Error en [BitacoraController::poblarFiltros]: ".$e->getMessage());
+            return ["ok" => false, "message"=> "Error al poblar el filtro"];
+        }
+    }
+
+    public function obtenerResultadoBusqueda(Request $request) {
+        try {
+            $bitacoras = DB::table('bitacora as b')
+            ->select(
+                'b.id_bitacora',
+                'b.folio_reporte',
+                'b.bSitio',
+                'b.proyecto',
+                'b.fecha',
+                's.sitio',
+                'b.bFinalizado',
+                DB::raw("COALESCE(
+                    JSON_ARRAYAGG(
+                        IF(d.id_actividad IS NOT NULL, JSON_OBJECT(
+                            'orden_trabajo', d.orden_trabajo,
+                            'observacion', d.observacion,
+                            'hora_creacion', TIME_FORMAT(d.hora_creacion, '%H:%i')
+                        ), NULL)
+                    ), '[]'
+                ) as detalles")
+            )
+            ->leftJoin('det_bitacora as d', 'b.id_bitacora', '=', 'd.bitacora_id')
+            ->join('cat_clientes as c', 'b.cliente_id', '=', 'c.id_cliente')
+            ->leftJoin('cat_sitios as s', 'b.sitio_id', '=', 's.id_sitio')
+            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.bSitio', 'b.proyecto', 'b.fecha', 'b.equipo', 'c.cliente', 's.sitio', 'b.dt_creacion','b.bFinalizado')
+            ->orderBy("b.fecha","desc")
+            ->when(isset($request->id_sitio) && $request->id_sitio > 0, function($query) use ($request) {
+                return $query->where("s.id_sitio",$request->id_sitio);
+            })
+            ->when(isset($request->id_cliente) && $request->id_cliente > 0, function($query) use ($request) {
+                return $query->where("c.id_cliente",$request->id_cliente);
+            })
+            ->when(isset($request->id_bitacora) && $request->id_bitacora > 0, function($query) use ($request) {
+                return $query->where("b.id_bitacora",$request->id_bitacora);
+            })
+            ->take($request->rows)
+            ->get()
+            ->map(function ($bitacora) {
+                $detalles = json_decode($bitacora->detalles, true);
+                $bitacora->fecha = $this->convertDateToText($bitacora->fecha);
+                $bitacora->detalles = array_filter($detalles, function ($item) {
+                    return $item !== null;
+                });        
+                return $bitacora;
+            });
+        
+            return response()->json(['ok' => true, 'data' => $bitacoras]);
+        } catch(\Exception $e) {
+            Log::error("Error en [BitacoraController::obtenerResultadoBusqueda]: ".$e->getMessage());
+            return ["ok" => false, "message"=> "Error al obtener Resultado"];
         }
     }
 
