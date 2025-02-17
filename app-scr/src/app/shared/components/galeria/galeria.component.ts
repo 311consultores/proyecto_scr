@@ -13,7 +13,8 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 export class GaleriaComponent {
   @Input() images: string[] = [];
   @Output() photosEvent = new EventEmitter<string[]>();
-  currentIndex: number = 0;
+  currentIndex: number = 0;  
+  isModalOpen = false; // Estado del modal
 
   constructor(library: FaIconLibrary) {
         library.addIcons(faTrash);
@@ -31,6 +32,9 @@ export class GaleriaComponent {
   }
 
   eliminarImagen(index : number) {
+    if(this.currentIndex > 0) {
+      this.currentIndex--;
+    }
     this.images.splice(index,1);
     this.photosEvent.emit(this.images);
   }

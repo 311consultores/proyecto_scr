@@ -1,13 +1,13 @@
 
 <!-- Button trigger modal -->
-<fa-icon class="btn btn-info text-white" (click)="m_inicia_captura()" [icon]="['fas', 'camera']"></fa-icon>
-<div class="modal-webcam {{ modal ? 'show' : '' }}">
+<!-- <fa-icon class="btn btn-info text-white" (click)="m_inicia_captura()" [icon]="['fas', 'camera']"></fa-icon> -->
+<div class="modal-webcam {{ isModalOpen ? 'show' : '' }}">
     <div class="modal-close">
         <fa-icon [icon]="['fas', 'xmark']" (click)="stopWebcam()"></fa-icon>
-        <fa-icon [icon]="['fas', 'camera-rotate']" (click)="toggleCamera()"></fa-icon>
+        <!-- <fa-icon [icon]="['fas', 'camera-rotate']" (click)="toggleCamera()"></fa-icon> -->
     </div>
     <div class="modal-content-webcam">
-        <video #videoElement autoplay playsinline></video>
+        <video #videoElement autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
     </div>
     <div class="centrado-camera" [class.active]="isTakingPhoto">
         <div class="reels-photos">

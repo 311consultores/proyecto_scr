@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild, ElementRef, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCamera, faCheck, faXmark, faCircleXmark, faCameraRotate } from '@fortawesome/free-solid-svg-icons';
 
@@ -10,10 +10,12 @@ import { faCamera, faCheck, faXmark, faCircleXmark, faCameraRotate } from '@fort
   templateUrl: './webcam.component.html',
   styleUrl: './webcam.component.scss'
 })
-export class WebcamComponent implements AfterViewInit {
+export class WebcamComponent implements OnChanges {
   fotografias: any;
+  @Input() isModalOpen: boolean = false;
   @Input() images: string[] = [];
   @Output() photosEvent = new EventEmitter<string[]>();
+  @Output() modalClosed = new EventEmitter<void>();
   videoStream: MediaStream | null = null; // Almacena el stream de video
   @ViewChild('videoElement') videoElementRef!: ElementRef<HTMLVideoElement>; // Referencia al elemento <video>
   modal = false;
@@ -38,21 +40,28 @@ export class WebcamComponent implements AfterViewInit {
     this.stopWebcam();
   }
 
-  // Iniciar la cámara web
   async startWebcam() {
     try {
       this.fotografias = this.images;
       this.iCont = this.fotografias.length;
-      this.modal = true;
-
-      // Obtener los dispositivos de video disponibles
-      this.devices = (await navigator.mediaDevices.enumerateDevices()).filter(
-        (device) => device.kind === 'videoinput'
-      );
-
-      // Iniciar con la cámara trasera (o la primera disponible)
-      this.currentDeviceId = this.devices[0]?.deviceId || null;
-      await this.switchCamera(this.currentDeviceId);
+  
+      // Iniciar con la cámara trasera
+      const constraints: MediaStreamConstraints = {
+        video: {
+          aspectRatio: 9 / 16,
+          width: { min: 1280, ideal: 1920 }, // Resolución mínima e ideal
+          height: { min: 720, ideal: 1080 }, // Resolución mínima e ideal
+          facingMode: 'environment'
+        },
+        audio: false,
+      };
+  
+      this.videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+  
+      // Asignar el stream al elemento <video>
+      if (this.videoElementRef && this.videoElementRef.nativeElement) {
+        this.videoElementRef.nativeElement.srcObject = this.videoStream;
+      }
     } catch (error) {
       console.error('Error al acceder a la cámara:', error);
     }
@@ -63,20 +72,19 @@ export class WebcamComponent implements AfterViewInit {
     if (this.videoStream) {
       this.videoStream.getTracks().forEach((track) => track.stop()); // Detener el stream actual
     }
-  
+
     try {
       const constraints: MediaStreamConstraints = {
         video: {
           deviceId: deviceId ? { exact: deviceId } : undefined, // Usar el dispositivo específico
-          width: { ideal: 1280 }, // Resolución ideal
-          height: { ideal: 720 }, // Resolución ideal
-          facingMode: deviceId ? undefined : { ideal: 'environment' } // Cámara trasera por defecto
+          aspectRatio: 9 / 16, // Forzar relación de aspecto vertical
+          facingMode: 'environment' // Cámara trasera por defecto
         },
         audio: false,
       };
-  
+
       this.videoStream = await navigator.mediaDevices.getUserMedia(constraints);
-  
+
       // Asignar el nuevo stream al elemento <video>
       if (this.videoElementRef && this.videoElementRef.nativeElement) {
         this.videoElementRef.nativeElement.srcObject = this.videoStream;
@@ -86,26 +94,15 @@ export class WebcamComponent implements AfterViewInit {
     }
   }
 
-  // Voltear la cámara
-  async toggleCamera() {
-    if (this.devices.length > 1) {
-      const currentIndex = this.devices.findIndex(
-        (device) => device.deviceId === this.currentDeviceId
-      );
-      const nextIndex = (currentIndex + 1) % this.devices.length; // Alternar entre cámaras
-      this.currentDeviceId = this.devices[nextIndex].deviceId;
-      await this.switchCamera(this.currentDeviceId);
-    }
-  }
-
   // Detener la cámara web
   stopWebcam() {
-    this.modal = false;
+    this.isModalOpen = false;
     if (this.videoStream) {
       this.videoStream.getTracks().forEach((track) => track.stop()); // Detener todas las pistas
     }
     this.iCont = 0;
     this.fotografias = [];
+    this.modalClosed.emit();
   }
 
   deleteLastPhoto() {
@@ -114,27 +111,52 @@ export class WebcamComponent implements AfterViewInit {
   }
 
   capturarFoto() {
-    this.isTakingPhoto = true;
-    setTimeout(() => {
-      this.isTakingPhoto = false;
-    }, 500); // Duración de la animación
+    if (!this.videoElementRef?.nativeElement) return;
+  
+    const video = this.videoElementRef.nativeElement;
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-    if (this.videoElementRef && this.videoElementRef.nativeElement && context) {
-      canvas.width = this.videoElementRef.nativeElement.videoWidth;
-      canvas.height = this.videoElementRef.nativeElement.videoHeight;
-      context.drawImage(this.videoElementRef.nativeElement, 0, 0, canvas.width, canvas.height);
-      const photoUrl = canvas.toDataURL('image/png');
+  
+    if (!context) {
+      console.error("Error: No se pudo obtener el contexto del canvas.");
+      return;
+    }
+  
+    // Obtener dimensiones originales del video
+    const videoWidth = video.videoWidth || video.clientWidth;
+    const videoHeight = video.videoHeight || video.clientHeight;
+  
+    if (!videoWidth || !videoHeight) {
+      console.error("Error: No se pudo obtener el tamaño del video.");
+      return;
+    }
+  
+    // Establecer tamaño del canvas con las dimensiones originales
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
+  
+    // Dibujar la imagen original en el canvas
+    context.drawImage(video, 0, 0, videoWidth, videoHeight);
+  
+    // Convertir canvas a imagen en formato JPEG
+    try {
+      const photoUrl = canvas.toDataURL('image/jpeg', 0.9); // Calidad del 90%
       this.fotografias.push(photoUrl);
-      this.cdr.detectChanges();
       this.iCont++;
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error("Error al generar la imagen:", error);
     }
   }
-
-  // Asegurarse de que el elemento <video> esté listo
-  ngAfterViewInit() {
-    if (this.videoElementRef && this.videoElementRef.nativeElement) {
-      console.log('Elemento <video> listo');
+  
+  // Método que se ejecuta cuando cambia una propiedad de entrada
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['isModalOpen']) {
+        if (this.isModalOpen) {
+            this.startWebcam(); // Iniciar la cámara si el modal se abre
+        } else {
+            this.stopWebcam(); // Detener la cámara si el modal se cierra
+        }
     }
   }
 }

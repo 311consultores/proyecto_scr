@@ -20,7 +20,7 @@
                                 @if(bitacora.id_bitacora == null) {
                                     Registro de Actividad
                                 }@else {
-                                    <strong>{{ bitacora.folio_reporte }}</strong> &nbsp; {{ bitacora.bSitio ? bitacora.sitio : bitacora.proyecto }}
+                                    <strong>{{ bitacora.titulo }}</strong>
                                 }
                             </h5>
                         </div>
@@ -69,17 +69,11 @@
                                     #fechaRef="ngModel" [class.is-invalid]="fechaRef.invalid && fechaRef.touched">
                                     <div class="invalid-feedback">*Campo obligatorio*</div>
                             </div>
-                            <div class="field padding-bottom--24 col-9">
+                            <div class="field padding-bottom--24 col-md-9 col-sm-12">
                                 <label for="equipo">Equipo</label>
                                 <input type="text" class="form-control" name="equipo" placeholder="Ingresa el nombre del equipo" [(ngModel)]="bitacora.equipo">
                             </div>
                             <div class="d-flex justify-content-end align-items-center mt-3 gap-2">
-                                <app-alerta
-                                    class="w-100"
-                                    message="{{funciones.alerta.sMessage}}"
-                                    type="{{funciones.alerta.sTipo}}"
-                                    isVisible="{{funciones.alerta.bShow}}">
-                                </app-alerta>
                                 <button class="btn btn-success" [disabled]="miFormulario.invalid">
                                     @if(funciones.bLoad) {
                                         <div class="spinner"></div>
@@ -87,7 +81,15 @@
                                         {{ bitacora.id_bitacora == null ? 'Iniciar' : 'Editar' }}
                                     }
                                 </button>   
-                            </div>     
+                            </div>
+                            <div class="col-12">
+                                <app-alerta
+                                    class="w-100"
+                                    message="{{funciones.alerta.sMessage}}"
+                                    type="{{funciones.alerta.sTipo}}"
+                                    isVisible="{{funciones.alerta.bShow}}">
+                                </app-alerta>
+                            </div>
                         </form>
                     </div>     
                 </div>
@@ -97,20 +99,27 @@
                     <h5 class="title-section m-0 p-0">Mis actividades</h5>
                 </div>
             }
+            <!-- Componente de la cámara web -->
+            <app-webcam style="z-index: 10;"
+            [images]="currentFotografias" 
+            (photosEvent)="onPhotosCaptured($event)"
+            [isModalOpen]="isWebcamModalOpen"
+            (modalClosed)="onWebcamModalClosed()">
+            </app-webcam>
             @for(actividad of bitacora.actividades; track $index) {
                 <div class="card col-10 {{ $index > 0 ? 'mt-2' : '' }}">
                     <div class="card-body">
                         <div class="accordion" id="accordion-actividad{{$index}}">
                             <div class="accordion-item">
-                                <h5 class="card-title accordion-button {{ actividad.id_actividad == 0 ? '' : 'collapsed' }}" 
+                                <h5 class="card-title accordion-button {{ (actividad.id_actividad == 0 || actividad.alerta == 'true') ? '' : 'collapsed' }}" 
                                     data-bs-toggle="collapse" 
                                     [attr.data-bs-target]="'#collapse-form'+$index" 
-                                    [attr.aria-expanded]="actividad.id_actividad == 0 ? 'true' : 'false'" 
+                                    [attr.aria-expanded]="(actividad.id_actividad == 0 || actividad.alerta == 'true') ? 'true' : 'false'" 
                                     [attr.aria-controls]="'collapse-form'+$index">
-                                    {{ actividad.id_actividad == 0 ? 'ACTIVIDAD #'+($index+1) : actividad.orden_trabajo }}
+                                    {{ actividad.id_actividad == 0 ? 'ACTIVIDAD #'+($index+1) : actividad.titulo }}
                                 </h5>
                             </div>
-                            <form class="row needs-validation accordion-collapse collapse {{ actividad.id_actividad == 0 ? 'show' : '' }}" 
+                            <form class="row needs-validation accordion-collapse collapse {{ (actividad.id_actividad == 0 || actividad.alerta == 'true') ? 'show' : '' }}" 
                                 id="collapse-form{{$index}}" [attr.data-bs-parent]="'#accordion-actividad'+$index"
                                 (ngSubmit)="enviarFormularioActividad(actividad, $index)">
                                 <div class="field padding-bottom--24 col-md-6">
@@ -118,7 +127,7 @@
                                     <input type="text" class="form-control" name="orden_trabajo" placeholder="Ingresa el OT" [(ngModel)]="actividad.orden_trabajo">
                                     <div class="invalid-feedback">*Campo obligatorio*</div>
                                 </div>
-                                <div class="field padding-bottom--24 col-md-6">
+                                <div class="field padding-bottom--24 col-md-6 col-sm-12">
                                     <label for="equipo" class="required">Equipo</label>
                                     <input type="text" class="form-control" name="equipo" placeholder="Ingresa el Equipo" [(ngModel)]="actividad.equipo">
                                     <div class="invalid-feedback">*Campo obligatorio*</div>
@@ -140,8 +149,9 @@
                                         [message]="funciones.alerta.sMessage"
                                         [type]="funciones.alerta.sTipo"
                                         [isVisible]="actividad.alerta">
-                                    </app-alerta>                         
-                                    <app-webcam [images]="actividad.fotografias" (photosEvent)="actividad.fotografias = $event"></app-webcam>
+                                    </app-alerta>
+                                    <!-- Botón para abrir la cámara y asociar fotos a esta actividad -->
+                                    <fa-icon class="btn btn-info text-white" (click)="openWebcamForActivity($index)" [icon]="['fas', 'camera']"></fa-icon>
                                     <button class="btn-success btn" type="submit">
                                         @if(funciones.bLoad) {
                                             <div class="spinner"></div>

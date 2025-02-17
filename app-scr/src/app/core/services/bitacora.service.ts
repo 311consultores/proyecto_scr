@@ -31,8 +31,20 @@ export class BitacoraService {
     return this.http.post<any>( environment.apiUrl+"bitacora/guardarDetBitacora", actividad);
   }
 
+  finalizarBitacora(json : any) : Observable<any> {
+    return this.http.post<any>( environment.apiUrl+"bitacora/finalizarBitacora", json);
+  }
   //Admin
   indexAdmin() {
     return this.http.get<any>(environment.apiUrl+"bitacora/admin/index");
+  }
+
+  obtenerBitacoraPorId(id_bitacora : any) {
+    return this.http.get<any>(environment.apiUrl+"bitacora/admin/obtenerBitacoraPorId/"+id_bitacora+"/1");
+  }
+
+  //Generales
+  generarReporteBitacora(json : any) {
+    return this.http.post<any>(environment.apiUrl+"bitacora/reporte/generarReporteBitacora", json);
   }
 }
