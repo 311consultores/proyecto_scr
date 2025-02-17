@@ -65,6 +65,9 @@ class BitacoraController extends Controller
             'fecha.date' => "El campo 'Fecha' no es una fecha valida",
             'equipo.max' => "El campo 'Equipo' acepta maximo 300 caracteres"
         ]);
+        if(boolval($request->bSitio)) {
+            if(intval($request->sitio_id) == 0) return ["ok" => false, "message" => "No se ha seleccionado un sitio"];
+        }
         if ($validator->fails()) {
             $errores = [];
             foreach ($validator->errors()->all() as $key => $mensaje) {
@@ -72,8 +75,8 @@ class BitacoraController extends Controller
             }
             return response()->json([
                 "ok" => false,
-                "message" => $errores
-            ], 422);
+                "message" => $errores[0]
+            ]);
         }
         #endregion        
         try {
@@ -98,6 +101,7 @@ class BitacoraController extends Controller
 
             return response()->json([
                 "ok" => true,
+                "bUpdate" => false,
                 "data" => "Has iniciado el registro de tu actividad correctamente",
                 "id" => $id_bitacora// Incluir el ID en la respuesta,
 
@@ -109,7 +113,7 @@ class BitacoraController extends Controller
             return response()->json([
                 "ok" => false,
                 "message" => "Plataforma temporalmente fuera de servicio"
-            ], 500); // Código HTTP 500 para errores del servidor
+            ]); // Código HTTP 500 para errores del servidor
         }
     }
 
@@ -117,16 +121,16 @@ class BitacoraController extends Controller
         #region [Validaciones]
             $validator = Validator::make($request->all(),[
                 "bitacora_id" => 'required',
-                "orden_trabajo" => 'required|max:15',
+                "orden_trabajo" => 'required|max:300',
                 "equipo" => 'required|max:300',
                 "observacion" => 'max:5000',
                 "fotografias" => 'array'
             ],[
                 'bitacora_id.required' => "El id_bitacora es obligatorio",
-                'orden_trabajo.required' => "El campo 'Reporte' es obligatorio",
-                'orden_trabajo.max' => "El campo 'Reporte' acepta maximo 15 caracteres",
-                'equipo.required' => "El campo 'Sitio y/o Proyecto' es obligatorio",
-                'equipo.max' => "El campo 'Sitio y/o Proyecto' acepta maximo 300 caracteres",
+                'orden_trabajo.required' => "El campo 'Orden de Trabajo' es obligatorio",
+                'orden_trabajo.max' => "El campo 'Orden de Trabajo' acepta maximo 300 caracteres",
+                'equipo.required' => "El campo 'Equipo' es obligatorio",
+                'equipo.max' => "El campo 'Equipo' acepta maximo 300 caracteres",
                 'observacion.max' => "El campo 'Observacion' acepta maximo 300 caracteres",
                 'fotografias.array' => "Error al recibir el parametro 'Fotografia' debe se un arreglo",
             ]);
@@ -139,10 +143,13 @@ class BitacoraController extends Controller
                 return response()->json([
                     "ok" => false,
                     "message" => $errores[0]
-                ], 422);
+                ]);
             }
         #endregion
         try {
+            if($request->id_actividad > 0) {
+                return $this->editarDetBitacora($request);
+            }
             DB::beginTransaction();
 
             // Obtener los datos del request como un array
@@ -183,6 +190,7 @@ class BitacoraController extends Controller
 
             return response()->json([
                 "ok" => true,
+                "bUpdate" => false,
                 "data" => "Has registrado tu actividad correctamente",
                 "id" => $id_actividad// Incluir el ID en la respuesta,
 
@@ -194,12 +202,116 @@ class BitacoraController extends Controller
             return response()->json([
                 "ok" => false,
                 "message" => "Plataforma temporalmente fuera de servicio"
-            ], 500); // Código HTTP 500 para errores del servidor
+            ]);
+        }
+    }
+
+    public function finalizarBitacora(Request $request) {
+        try {
+            DB::table("bitacora")->where("id_bitacora",$request->id_bitacora)->update([
+                "bFinalizado" => 1
+            ]);
+            return ["ok" => true, "data" => "Bitacora Finalizada con exito"];
+        } catch(\PdoException | \Exception | \Error $e) {
+            DB::rollBack();
+            Log::error("Método [finalizarBitacora] - Error: " . $e->getMessage());
+            return response()->json([
+                "ok" => false,
+                "message" => "Plataforma temporalmente fuera de servicio"
+            ]); // Código HTTP 500 para errores del servidor
         }
     }
     //Genericos
-    public function editarBitacora(Request $resquest) {
+    public function editarBitacora(Request $request) {
+        try {
+            $bitacora = $request->only([
+                'folio_reporte', 'bSitio', 'proyecto', 'sitio_id', 'cliente_id', 'fecha', 'equipo'
+            ]);
+            DB::beginTransaction();
+            //Actualizamos
+            DB::table('bitacora')->where("id_bitacora",$request->id_bitacora)
+            ->update($bitacora);
 
+            //Cerramos las transacciónes a BD
+            DB::commit();
+
+            return response()->json([
+                "ok" => true,
+                "bUpdate" => true,
+                "data" => "Has actualizado la información de tu registro"
+
+            ], 201); // Código HTTP 201 para creación exitosa
+        } catch(\PdoException | \Exception | \Error $e) {
+            DB::rollBack();
+            Log::error("Método [editarBitacora] - Error: " . $e->getMessage());
+            return response()->json([
+                "ok" => false,
+                "message" => "Plataforma temporalmente fuera de servicio"
+            ]); // Código HTTP 500 para errores del servidor
+        }
+    }
+
+    public function editarDetBitacora(Request $request) {
+        try {
+            DB::beginTransaction();
+            // Obtener los datos del request como un array
+            $actividad = $request->only([
+                'orden_trabajo', 'equipo', 'observacion'
+            ]);
+            //Actualizamos la informacion de la actividad
+            DB::table("det_bitacora")->where("id_actividad",$request->id_actividad)
+            ->update($actividad);
+            //Manejo de Imagenes
+            //Paso 1. Eliminamos las imagenes almacenadas y en BD
+            $foto_respaldo = DB::table("fotos_bitacora")->where("actividad_id",$request->id_actividad)->get();
+            foreach($foto_respaldo as $foto) {
+                //Eliminamos imagenes almacenadas
+                if (Storage::disk('reportes')->exists($foto->path)) {
+                    Storage::disk('reportes')->delete($foto->path);
+                }
+                // Eliminar el registro de la base de datos
+                DB::table("fotos_bitacora")
+                ->where('path', $foto->path)
+                ->delete();
+            }
+            //Paso 2. Si encontramos imagenes, las guardamos en Storage & BD
+            $fotografias = $request->input('fotografias', []);
+            $iCont=0;
+            foreach($fotografias as $fotografia) {
+                if (preg_match('/^data:image\/(\w+);base64,/', $fotografia, $type)) {
+                    $type = strtolower($type[1]); // png, jpeg, etc.
+                    $image = base64_decode(preg_replace('/^data:image\/(\w+);base64,/', '', $fotografia));
+                    if ($image === false) {
+                        continue; // Si la decodificación falla, continuar con la siguiente imagen
+                    }
+                    $nombreArchivo = "Bitacora-" . uniqid() . '.' . $type;
+                    Storage::disk('reportes')->put($nombreArchivo, $image);
+                    //Guardabamos en BD
+                    DB::table("fotos_bitacora")->insert([
+                        'actividad_id' => $request->id_actividad,
+                        'nombre_doc' => $request->orden_trabajo.$iCont,
+                        'path' => $nombreArchivo,
+                        "dt_creacion" => date('Y-m-d'),
+                        'activo' => 1
+                    ]);
+                }             
+            }
+            //Cerramos las transacciónes a BD
+            DB::commit();
+
+            return response()->json([
+                "ok" => true,
+                "bUpdate" => true,
+                "data" => "Has actualizado tu actividad correctamente"
+            ], 201); // Código HTTP 201 para creación exitosa
+        } catch(\PdoException | \Exception | \Error $e) {
+            DB::rollBack();
+            Log::error("Método [editarDetBitacora] - Error: " . $e->getMessage());
+            return response()->json([
+                "ok" => false,
+                "message" => "Plataforma temporalmente fuera de servicio"
+            ]);
+        }
     }
     //Admin Methods
     public function adminIndex() {
@@ -212,6 +324,7 @@ class BitacoraController extends Controller
                 'b.proyecto',
                 'b.fecha',
                 's.sitio',
+                'b.bFinalizado',
                 DB::raw("COALESCE(
                     JSON_ARRAYAGG(
                         IF(d.id_actividad IS NOT NULL, JSON_OBJECT(
@@ -225,7 +338,7 @@ class BitacoraController extends Controller
             ->leftJoin('det_bitacora as d', 'b.id_bitacora', '=', 'd.bitacora_id')
             ->join('cat_clientes as c', 'b.cliente_id', '=', 'c.id_cliente')
             ->leftJoin('cat_sitios as s', 'b.sitio_id', '=', 's.id_sitio')
-            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.bSitio', 'b.proyecto', 'b.fecha', 'b.equipo', 'c.cliente', 's.sitio', 'b.dt_creacion')
+            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.bSitio', 'b.proyecto', 'b.fecha', 'b.equipo', 'c.cliente', 's.sitio', 'b.dt_creacion','b.bFinalizado')
             ->get()
             ->map(function ($bitacora) {
                 $detalles = json_decode($bitacora->detalles, true);
@@ -244,7 +357,7 @@ class BitacoraController extends Controller
         }
     }
 
-    public function obtenerBitacoraPorId($id) {
+    public function obtenerBitacoraPorId($id, $tipo=0) {
         try {
             $bitacora = DB::table('bitacora as b')
             ->select(
@@ -271,26 +384,31 @@ class BitacoraController extends Controller
             )
             ->leftJoin('det_bitacora as d', 'b.id_bitacora', '=', 'd.bitacora_id')
             ->leftJoin('cat_sitios as s','s.id_sitio', '=', 'b.sitio_id')
-            ->leftJoin('cat_clientes as c','c.id_cliente', '=', 'b.cliente_id')
+            ->join('cat_clientes as c','c.id_cliente', '=', 'b.cliente_id')
             ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.bSitio', 'b.proyecto', 'b.fecha', 'b.equipo', 'b.cliente_id', 'b.sitio_id','s.sitio','c.cliente')
             ->where('id_bitacora', $id)
             ->get()
-            ->map(function ($bitacora) {
+            ->map(function ($bitacora) use ($tipo) {
                 $actividades = json_decode($bitacora->actividades, true);
                 $bitacora->actividades = $actividades[0] !== null ? $actividades : [];
+                $bitacora->titulo = $bitacora->folio_reporte . " - ";
+                $bitacora->titulo .= $bitacora->bSitio ? $bitacora->sitio : $bitacora->proyecto;
                 //Buscamos las fotografias si cuenta
                 foreach($bitacora->actividades as &$actividad) {
                     $actividad["fotografias"] = DB::table('fotos_bitacora')
                     ->select("id_foto","path")
                     ->where('actividad_id',$actividad["id_actividad"])
                     ->get()
-                    ->map(function($foto) {
-                        $base64 = $this->getPhotoBase64($foto->path);
-                        if($base64 != null) {
-                            $foto = $base64;
+                    ->map(function ($foto) use ($tipo) { // <-- Pasar $tipo con use()
+                        if ($tipo == 1) {
+                            $base64 = $this->getPhotoBase64($foto->path);
+                            if ($base64 != null) {
+                                $foto = $base64;
+                            }
                         }
                         return $foto;
                     });
+                    $actividad["titulo"]= $actividad["orden_trabajo"];
                 }
                 unset($actividad);
                 return $bitacora;
@@ -306,11 +424,15 @@ class BitacoraController extends Controller
     }
 
     //Reporte
-    public function generarReporteBitacora($id) {
+    public function generarReporteBitacora(Request $request) {
         try {
-            $bitacora = json_decode(json_encode($this->obtenerBitacoraPorId($id)));
+            $bitacora = json_decode(json_encode($this->obtenerBitacoraPorId($request->id_bitacora)));
             if($bitacora->ok) {
-                return BitacoraExport::generar($bitacora->data[0], 1);
+                $pdf = BitacoraExport::generar($bitacora->data[0]);
+                return [ 
+                    "ok" => true,
+                    "data" => $pdf
+                ];    
             }
             //Error al obtener la información de la bitacora
             return [ 

@@ -14,7 +14,7 @@ class BitacoraExport {
         $pdf->AddPage();
         $pdf->SetFont('Arial','U',11);
         $pdf->SetDrawColor(216, 216, 216);        
-        $pdf->SetAutoPageBreak(true,5); 
+        $pdf->SetAutoPageBreak(true, 10);
         #region [Cabecera]
         $pdf->setXY(0,0);
         $pdf->Cell(50,20,"",0,0,"L");
@@ -63,18 +63,15 @@ class BitacoraExport {
         $pdf->setXY(5,49);
         $pdf->SetFont('Arial','',11);
         $pdf->Cell(200,5,utf8_decode(self::truncarTexto($pdf,$data->equipo,100)),0,0,"L",1);
-        $pdf->setXY(5,60);
-        $pdf->SetFont('Arial','B',14);
-        $pdf->SetTextColor(255, 131, 66);
-        $pdf->Cell(50,5,"Actividades Realizadas",0,0,"L",1);
         #endregion
         #region [Actividades]
-        $index=1;
+        $pdf->setXY(5,$pdf->getY()+10);
         foreach($data->actividades as $actividad) {
             #region [Cabecera Actividad]
+            $pdf->setXY(5,$pdf->getY());
             $pdf->SetFont('Arial','B',12);
-            $pdf->SetTextColor(44, 36, 32);
-            $pdf->setXY(5,$pdf->getY()+10);
+            $pdf->SetTextColor(44, 36, 32);      
+            $pdf->SetTextColor(255, 51, 0);
             $pdf->Cell(200,5,utf8_decode($actividad->orden_trabajo),0,0,"C",1);
             $pdf->setXY(5,$pdf->getY()+5);
             $pdf->setFillColor(226, 222, 215);
@@ -82,93 +79,47 @@ class BitacoraExport {
             #endregion
             #region [Cuerpo Actividad]
             $pdf->setFillColor(255, 255, 255);
+            $pdf->SetTextColor(0, 0, 0);
             $pdf->SetFont('Arial','B',12);
             $pdf->setXY(5,$pdf->getY()+5);
             $pdf->Cell(30,5,"Equipo",0,0,"L",1);
             $pdf->SetFont('Arial','',11);
-            $pdf->setXY(5,$pdf->getY()+6);
+            $pdf->setXY(5,$pdf->getY()+6);  
             $pdf->Cell(200,5,utf8_decode(self::truncarTexto($pdf,$actividad->equipo,200)),0,0,"L",1);
             $pdf->setXY(5,$pdf->getY()+7);
             $pdf->SetFont('Arial','B',12);
             $pdf->Cell(30,5,utf8_decode("Descripción"),0,0,"L",1);
             $pdf->setXY(5,$pdf->getY()+6);
             $pdf->SetFont('Arial','',11);
-            $pdf->Cell(200,5,utf8_decode(self::truncarTexto($pdf,$actividad->observacion,200)),0,0,"L",1);
+            $pdf->MultiCell(200, 5, utf8_decode($actividad->observacion), 0, "L", 1);
             if(count($actividad->fotografias) > 0) {
-                foreach($actividad->fotografias as $foto) {
-
+                if ($pdf->getY() + 70 > $pdf->GetPageHeight()) {
+                    $pdf->AddPage();
+                    $y = 10; // Reiniciar la posición en la nueva página
                 }
+                $pdf->setXY(5,$pdf->getY()+2);
+                $pdf->SetFont('Arial','B',12);
+                $pdf->Cell(200,5,utf8_decode("Evidencia Fotografia"),0,0,"C",1);
+                $pdf->setXY(5,$pdf->getY()+5);
+                $x = $pdf->getX();
+                $y= $pdf->getY();
+                foreach($actividad->fotografias as $index => $foto) {
+                    $pdf->Image(Storage::disk('reportes')->path($foto->path),$x,$y,60,65);
+                    $index++;  
+                    $x += 70;
+                    if($index == count($actividad->fotografias) && (count($actividad->fotografias) % 2 == 0 || in_array($index,[1]))) {
+                        $y += 68;
+                    }else {
+                        if(in_array($index,[3,6,9,12,15,18,21,24,27,30])) {
+                            $x = 5;
+                            $y += 68;
+                        }
+                    }                    
+                }
+                $pdf->setY($y);
             }
             #endregion
         }
-            // $index=1;
-            // foreach($data->objEvidencias as $evidencia) {
-            //     $pdf->setFillColor(242, 242, 242);
-            //     $pdf->SetTextColor(0, 0, 0);
-            //     $pdf->SetFont('Arial','B',11);                
-            //     $pdf->setX(4);
-            //     $pdf->Cell(202,7,utf8_decode(strtoupper($evidencia->sTitulo)),1,0,"C",1);
-            //     $pdf->Ln();
-            //     $pdf->setX(4);
-            //     $pdf->SetFont('Arial','',12);
-            //     if($evidencia->bImagenes) {
-            //         $pdf->MultiCell(202,6,utf8_decode($evidencia->sDescripcion),"RL",'L');
-            //         $pdf->setX(4);
-            //         $pdf->SetFont('Arial','B',11);
-            //         $pdf->Cell(202,6,utf8_decode("EVIDENCIA FOTOGRÁFICA"),1,0,"C",1);
-            //         $pdf->Ln();
-            //         $pdf->setX(4);
-            //         $pdf->setFillColor(255, 255, 255);
-            //         $pdf->Cell(202,55,"",1,0,"C",1);
-            //         $posicionX=0;
-            //         $sumaX=0;
-            //         $valorx=0;
-            //         $valorY=53;
-            //         switch($evidencia->iTotalImagenes) {
-            //             case 1:
-            //                 $posicionX = 78;
-            //                 $valorX=55;
-            //                 break;
-            //             case 2:
-            //                 $posicionX=45;
-            //                 $valorX=55;
-            //                 $sumaX= 65;
-            //                 break;
-            //             case 3: 
-            //                 $posicionX=13;
-            //                 $valorX=55;
-            //                 $sumaX=65;
-            //                 break;
-            //             case 4:
-            //                 $posicionX=6;
-            //                 $valorX=48;
-            //                 $sumaX=50;
-            //                 break;
-            //             case 5:
-            //                 $posicionX=5;
-            //                 $valorX=40;
-            //                 $sumaX=40;
-            //                 break;
-            //         }
-            //         $pdf->SetX($posicionX);
-            //         foreach ($evidencia->objImagenes as $imagen) {
-            //             if($imagen->namefile != ""){
-            //                 $path_image = Storage::disk('reportes')->path($imagen->file);
-            //                 $extension = explode('.',$imagen->file);
-            //                 $pdf->Image($path_image,$pdf->GetX(),$pdf->GetY()+1,$valorX,$valorY,$extension[count($extension)-1],'');
-            //                 $pdf->SetX($pdf->GetX()+$sumaX);
-            //             }
-            //         }                   
-            //     }else{
-            //         $pdf->MultiCell(202,6,utf8_decode($evidencia->sDescripcion),"RBL",'L');
-            //     }
-            //     if(($pdf->GetY()+60+60) >= 270 && $index < count($data->objEvidencias)) {
-            //         $pdf->AddPage();
-            //     }else{
-            //         $pdf->SetY($pdf->GetY()+60);
-            //     }
-            //     $index++; 
-            // }
         #endregion
         if($tipo_export == 1) {
             return $pdf->Output("I","ReporteEvidencia.pdf");
