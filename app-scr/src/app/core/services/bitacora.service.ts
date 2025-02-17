@@ -35,12 +35,20 @@ export class BitacoraService {
     return this.http.post<any>( environment.apiUrl+"bitacora/finalizarBitacora", json);
   }
   //Admin
-  indexAdmin() {
+  indexAdmin(rows : any) {
     return this.http.get<any>(environment.apiUrl+"bitacora/admin/index");
   }
 
   obtenerBitacoraPorId(id_bitacora : any) {
     return this.http.get<any>(environment.apiUrl+"bitacora/admin/obtenerBitacoraPorId/"+id_bitacora+"/1");
+  }
+
+  poblarFiltros() {
+    return this.http.get<any>(environment.apiUrl+"bitacora/admin/poblarFiltros");
+  }
+
+  obtenerResultadoBusqueda(json : any) {
+    return this.http.post<any>(environment.apiUrl+"bitacora/admin/obtenerResultadoBusqueda", json);
   }
 
   //Generales

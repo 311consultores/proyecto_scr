@@ -1,0 +1,28 @@
+<div class="autocomplete-container">
+    <label for="busqueda" class="label">{{titleInp}}</label>
+    <div class="input-group" id="busqueda">
+        <input type="text"class="form-control" placeholder="Escriba para buscar..."
+        [(ngModel)]="search"
+        (input)="filterResults()">
+        <button
+        class="btn btn-outline-secondary"
+        type="button"
+        (click)="clearSearch()"
+        [disabled]="!search">
+        <fa-icon [icon]="['fas', 'eraser']"></fa-icon>
+      </button>
+    </div>
+    <!-- Lista de resultados -->
+    @if (search.length > 2 && filteredResults.length > 0) {
+        <div class="autocomplete-results">
+            <ul class="list-group">
+                @for (result of filteredResults; track $index) {
+                    <li class="list-group-item list-group-item-action"
+                    (click)="selectResult(result)">
+                        {{ result.nombre  }}
+                    </li>
+                }                
+            </ul>
+        </div>
+    }    
+</div>

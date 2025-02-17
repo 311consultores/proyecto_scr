@@ -1,14 +1,22 @@
-import { Component, Directive } from '@angular/core';
+import { Component } from '@angular/core';
 import { BitacoraService } from '../../core/services/bitacora.service';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import { LoadingModalComponent } from '../../shared/components/loading-modal/loading-modal.component';
 import * as LZString from 'lz-string';
+import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faFilter, faFilterCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { FormsModule } from '@angular/forms';
+import { AutocompleteComponent } from '../../shared/components/autocomplete/autocomplete.component';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-bitacora',
   imports: [
-    LoadingModalComponent
+    FormsModule,
+    FontAwesomeModule,
+    LoadingModalComponent,
+    AutocompleteComponent
   ],
   templateUrl: './bitacora.component.html',
   styleUrl: './bitacora.component.scss'
@@ -17,28 +25,42 @@ export class BitacoraComponent {
 
   $table: any[] = [];
   public isLoading = false;
+  public filtros = {
+    rows : 15,
+    data : Array(),
+    fechaIncial: Date,
+    fechaFinal: Date
+  };
+  public loading = true;
 
   constructor(
+    private library: FaIconLibrary,
     private router : Router,
     private _bitacoraService: BitacoraService
-  ) {}
+  ) {
+    this.library.addIcons(faFilter, faFilterCircleXmark);
+  }
 
   ngOnInit() {
     this.cargaInicial();
   }
 
   async cargaInicial() {
-    this._bitacoraService.indexAdmin()
+    this._bitacoraService.poblarFiltros()
     .subscribe({
       next: (response) => {
         if(response.ok) {
-          this.$table = response.data;
+          this.filtros.data = [
+            ...response.data.sitios,
+            ...response.data.clientes,
+            ...response.data.registros
+          ];
           return;
         }
-        alert(response.data);
-      },
-      error: (error) => alert(error)
-    })
+        alert(response.message);
+      }
+    });
+    this.getResults();
   }
 
   editarBitacora(id : any) {
@@ -86,4 +108,69 @@ export class BitacoraComponent {
       }
     })
   }
+
+  getResults() {
+    this._bitacoraService.indexAdmin(this.filtros.rows)
+    .pipe(
+      finalize(() =>  {
+        this.loading = false;
+      })
+    )
+    .subscribe({
+      next: (response) => {
+        if(response.ok) {
+          this.$table = response.data;
+          return;
+        }
+        alert(response.data);
+      },
+      error: (error) => alert(error)
+    });
+  }
+
+  // Buscador
+  busquedaSeleccionada(result : any) {
+    this.loading = true;
+    result.rows = this.filtros.rows;
+    this._bitacoraService.obtenerResultadoBusqueda(result)
+    .pipe(
+      finalize(() =>  {
+        this.loading = false;
+      })
+    )
+    .subscribe({
+      next: (response) => {
+        if(response.ok) {
+          this.$table = response.data;
+          return;
+        }
+        Swal.fire("Ha sucedio un problema", response.message, "warning");
+      }
+    })
+  }
+
+  limpiarBusqueda() {
+    this.loading = true;
+    this.getResults();
+  }
+
+  //#region [Métodos privados]
+  aplicarFiltros() {
+    // Filtrar el arreglo
+    // const bitacorasFiltradas = this.$table.filter((bitacora : any) => {
+    //   const bitacoraDate = this.parseCustomDate(bitacora.fecha);
+    //   return bitacoraDate >= this.filtros.fechaIncial && bitacoraDate <= this.filtros.fechaFinal;
+    // });
+  }
+
+  parseCustomDate(dateString: string): Date {
+    let months = {
+      'ENE': 0, 'FEB': 1, 'MAR': 2, 'ABR': 3, 'MAY': 4, 'JUN': 5,
+      'JUL': 6, 'AGO': 7, 'SEP': 8, 'OCT': 9, 'NOV': 10, 'DIC': 11
+    };
+
+    let [day, month, year] = dateString.split(' ');
+    return new Date(Number(year), months[month as keyof typeof months], Number(day));
+  }
+  //#endregion
 }

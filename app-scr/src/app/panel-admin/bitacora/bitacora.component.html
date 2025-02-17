@@ -14,97 +14,174 @@
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <p class="card-title-desc">En este módulo podrás visualizar, buscar & editar las Bitacoras de Actividades capturadas</p>
                 </div>
+                <div class="row g-3 align-items-end justify-content-start">
+                    <!-- Filtro de búsqueda general -->
+                    <div class="col-md-6 col-sm-12">
+                        <app-autocomplete class="w-100"
+                        titleInp="Buscar Cliente, Sitio, Folio"
+                        [data]="filtros.data"
+                        (searchSelected)="busquedaSeleccionada($event)"
+                        (searchCleaner)="limpiarBusqueda()"
+                        ></app-autocomplete>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="row g-3 align-items-end">
+                            <!-- Selector de número de registros -->
+                            <div class="col-md-4 col-sm-6">
+                                <label for="num-registros" class="form-label">Registros a mostrar</label>
+                                <select id="num-registros" class="form-select" [(ngModel)]="filtros.rows">
+                                    <option value="15">15</option>
+                                    <option value="30">30</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                            <!-- Botón para filtros avanzados -->
+                            <div class="col-sm-2 col-lg-3">
+                                <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtrosAvanzados">
+                                    <fa-icon [icon]="['fas', 'filter']"></fa-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row mt-5">
-                    @for (item of $table; track $index) {
-                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-                            <div class="card card-aunt">
-                                <div class="card-block">
-                                    <div class="card-header-aunt">
-                                        <div class="d-none d-sm-block image-header">
-                                            <img class="img-fluid rounded-circle" style="width:65px;height: 65px;" src="/imagenes/img-grua.jpg" alt="dashboard-user">
+                    @if (!loading) {
+                        @for (item of $table; track $index) {
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                                <div class="card card-aunt">
+                                    <div class="card-block">
+                                        <div class="card-header-aunt">
+                                            <div class="d-none d-sm-block image-header">
+                                                <img class="img-fluid rounded-circle" style="width:65px;height: 65px;" src="/imagenes/img-grua.jpg" alt="dashboard-user">
+                                            </div>
+                                            <div class="card-title">
+                                                <h5 class="text-truncate">{{ item.folio_reporte }}</h5>
+                                                <span class="text-truncate">{{ item.bSitio ? item.sitio : item.proyecto }}</span>
+                                                <span class="date text-truncate">{{ item.fecha }}</span>
+                                            </div>
                                         </div>
-                                        <div class="card-title">
-                                            <h5 class="text-truncate">{{ item.folio_reporte }}</h5>
-                                            <span class="text-truncate">{{ item.bSitio ? item.sitio : item.proyecto }}</span>
-                                            <span class="date text-truncate">{{ item.fecha }}</span>
-                                        </div>
-                                    </div>
-                                    <ul class="task-list">
-                                        @if (item.detalles.length > 0) {
-                                            <li style="margin-bottom: 1px !important;">
-                                                <div class="task-title d-flex align-items-center justify-content-between">
-                                                    <h6 class="my-0 text-truncate">{{ item.detalles[0].orden_trabajo }}</h6>
-                                                    <span>{{ item.detalles[0].hora_creacion }}</span>
-                                                </div>
-                                                <i class="task-icon bg-c-green"></i>
-                                                <p class="text-muted text-truncate">{{ item.detalles[0].observacion }}</p>
-                                            </li>
-                                            @if(item.detalles.length > 1) {
-                                                <li class="btn_mostrar" 
-                                                    data-bs-toggle="collapse" 
-                                                    [attr.href]="'#collapseExample' + $index" 
-                                                    role="button" 
-                                                    aria-expanded="false" 
-                                                    [attr.aria-controls]="'collapseExample' + $index"
-                                                    style="margin-bottom: 5px;">
-                                                    Mostrar más
+                                        <ul class="task-list">
+                                            @if (item.detalles.length > 0) {
+                                                <li style="margin-bottom: 1px !important;">
+                                                    <div class="task-title d-flex align-items-center justify-content-between">
+                                                        <h6 class="my-0 text-truncate">{{ item.detalles[0].orden_trabajo }}</h6>
+                                                        <span>{{ item.detalles[0].hora_creacion }}</span>
+                                                    </div>
+                                                    <i class="task-icon bg-c-green"></i>
+                                                    <p class="text-muted text-truncate">{{ item.detalles[0].observacion }}</p>
                                                 </li>
-                                            } @else {
-                                                <li style="margin-bottom: 5px;">&nbsp;</li>
-                                            }
-                                            <div class="collapse" [id]="'collapseExample' + $index">
-                                                @for (actividad of item.detalles; track $index) {
-                                                    @if( $index > 0 ) {
-                                                        <li>
-                                                            <div class="task-title d-flex align-items-center justify-content-between">
-                                                                <h6 class="my-0 text-truncate">{{ actividad.orden_trabajo }}</h6>
-                                                                <span>{{ actividad.hora_creacion }}</span>
-                                                            </div>
-                                                            <i class="task-icon bg-c-green"></i>
-                                                            <p class="text-muted text-truncate">{{ actividad.observacion }}</p>
-                                                        </li>
-                                                    }                                                    
+                                                @if(item.detalles.length > 1) {
+                                                    <li class="btn_mostrar" 
+                                                        data-bs-toggle="collapse" 
+                                                        [attr.href]="'#collapseExample' + $index" 
+                                                        role="button" 
+                                                        aria-expanded="false" 
+                                                        [attr.aria-controls]="'collapseExample' + $index"
+                                                        style="margin-bottom: 5px;">
+                                                        Mostrar más
+                                                    </li>
+                                                } @else {
+                                                    <li style="margin-bottom: 5px;">&nbsp;</li>
                                                 }
+                                                <div class="collapse" [id]="'collapseExample' + $index">
+                                                    @for (actividad of item.detalles; track $index) {
+                                                        @if( $index > 0 ) {
+                                                            <li>
+                                                                <div class="task-title d-flex align-items-center justify-content-between">
+                                                                    <h6 class="my-0 text-truncate">{{ actividad.orden_trabajo }}</h6>
+                                                                    <span>{{ actividad.hora_creacion }}</span>
+                                                                </div>
+                                                                <i class="task-icon bg-c-green"></i>
+                                                                <p class="text-muted text-truncate">{{ actividad.observacion }}</p>
+                                                            </li>
+                                                        }                                                    
+                                                    }
+                                                </div>
+                                            } @else {
+                                                <li style="margin-bottom: 1px !important;">
+                                                    <div class="task-title d-flex align-items-center justify-content-between">
+                                                        <h6 class="my-0 text-truncate">Sin actividades</h6>
+                                                        <span>00:00</span>
+                                                    </div>
+                                                    <i class="task-icon bg-c-green"></i>
+                                                    <p class="text-muted text-truncate">En proceso</p>
+                                                </li>
+                                                <li class="">&nbsp;</li>
+                                            }                                       
+                                        </ul>
+                                        @if (item.bFinalizado ) {
+                                            <strong class="text-success mt-3">Finalizado</strong>
+                                            <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                                <div class="progress-bar bg-success" style="width: 100%">100%</div>
+                                            </div>
+                                        } @else if (item.detalles.length > 0) {
+                                            <strong class="text-primary mt-3">Capturando...</strong>
+                                            <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                                <div class="progress-bar" style="width: 66%">66%</div>
                                             </div>
                                         } @else {
-                                            <li style="margin-bottom: 1px !important;">
-                                                <div class="task-title d-flex align-items-center justify-content-between">
-                                                    <h6 class="my-0 text-truncate">Sin actividades</h6>
-                                                    <span>00:00</span>
-                                                </div>
-                                                <i class="task-icon bg-c-green"></i>
-                                                <p class="text-muted text-truncate">En proceso</p>
-                                            </li>
-                                            <li class="">&nbsp;</li>
-                                        }                                       
-                                    </ul>
-                                    @if (item.bFinalizado ) {
-                                        <strong class="text-success mt-3">Finalizado</strong>
-                                        <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                            <div class="progress-bar bg-success" style="width: 100%">100%</div>
+                                            <strong class="text-warning mt-3">Bitacora Iniciada</strong>
+                                            <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                                <div class="progress-bar bg-warning" style="width: 33%">33%</div>
+                                            </div>
+                                        }                                    
+                                        <div class="widget-49-meeting-action d-flex justify-content-end mt-1">
+                                            <a class="btn btn-sm btn-flash-border-primary" (click)="editarBitacora(item.id_bitacora)">EDITAR</a>
+                                            <a class="btn btn-sm btn-flash-border-primary" (click)="getPDF(item.id_bitacora)">VISUALIZAR</a>
                                         </div>
-                                    } @else if (item.detalles.length > 0) {
-                                        <strong class="text-primary mt-3">Capturando...</strong>
-                                        <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                            <div class="progress-bar" style="width: 66%">66%</div>
-                                        </div>
-                                    } @else {
-                                        <strong class="text-warning mt-3">Bitacora Iniciada</strong>
-                                        <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                            <div class="progress-bar bg-warning" style="width: 33%">33%</div>
-                                        </div>
-                                    }                                    
-                                    <div class="widget-49-meeting-action d-flex justify-content-end mt-1">
-                                        <a class="btn btn-sm btn-flash-border-primary" (click)="editarBitacora(item.id_bitacora)">EDITAR</a>
-                                        <a class="btn btn-sm btn-flash-border-primary" (click)="getPDF(item.id_bitacora)">VISUALIZAR</a>
                                     </div>
                                 </div>
                             </div>
+                        }
+                    } @else {
+                        <div class="d-flex justify-content-center w-100">
+                            <span class="loader"></span>
                         </div>
-                    }
+                    }                 
                 </div>
             </div>
         </div>
+    </div>
+</div>
+<!-- Off Canvas Filtros -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="filtrosAvanzados">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Filtros Avanzados</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <!-- Filtro Fechas -->
+        <div class="mb-3">
+            <label for="fecha-inicial" class="form-label">Fecha Inicial</label>
+            <input type="date" id="fecha-inicial" class="form-control" [(ngModel)]="filtros.fechaIncial">
+        </div>
+        <div class="mb-3">
+            <label for="fecha-final" class="form-label">Fecha Final</label>
+            <input type="date" id="fecha-final" class="form-control" [(ngModel)]="filtros.fechaFinal">
+        </div>
+        
+        <!-- Filtro Estatus -->
+        <label class="form-label">Estatus</label>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="iniciado" id="estatus-iniciado">
+            <label class="form-check-label" for="estatus-iniciado">Todos</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="iniciado" id="estatus-iniciado">
+            <label class="form-check-label" for="estatus-iniciado">Iniciado</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="capturando" id="estatus-capturando">
+            <label class="form-check-label" for="estatus-capturando">Capturando</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="finalizado" id="estatus-finalizado">
+            <label class="form-check-label" for="estatus-finalizado">Finalizado</label>
+        </div>
+    </div>
+    <div class="offcanvas-footer p-1 d-flex justify-content-end">
+        <button class="btn btn-success" (click)="aplicarFiltros()">Aplicar</button>
     </div>
 </div>
 <app-loading-modal [isLoading]="isLoading"></app-loading-modal>

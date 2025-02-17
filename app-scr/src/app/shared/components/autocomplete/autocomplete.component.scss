@@ -1,0 +1,31 @@
+.autocomplete-container {
+    position: relative;
+    width: 100%;
+}
+  
+.autocomplete-results {
+    position: absolute;
+    width: 100%;
+    z-index: 1000; /* Asegura que la lista esté por encima de otros elementos */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    max-height: 200px;
+    overflow-y: auto; /* Habilita el scroll si hay muchos resultados */
+}
+  
+.list-group-item {
+    cursor: pointer; /* Cambia el cursor al pasar sobre los elementos */
+}
+  
+.list-group-item:hover {
+    background-color: #f8f9fa; /* Efecto hover */
+}
+
+.label {
+    font-size: 16px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 5px;
+    color: var(--gris) !important;
+}
