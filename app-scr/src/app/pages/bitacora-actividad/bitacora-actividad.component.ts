@@ -72,8 +72,12 @@ export class BitacoraActividadComponent {
   }
 
   cargarBitacora() {
-    if(localStorage.getItem("data-bitacora") != null)
+    if(localStorage.getItem("data-bitacora") != null) {
       this.bitacora = JSON.parse(LZString.decompress(localStorage.getItem("data-bitacora")+""));
+      if(this.bitacora.actividades.length == 0) {
+        this.nuevaActividad();
+      }
+    }
     this._bitacoraService.index().subscribe({
       next: (response) => {
         this.catalogos = response.data;

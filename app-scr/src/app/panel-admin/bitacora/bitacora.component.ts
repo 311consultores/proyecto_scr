@@ -24,12 +24,15 @@ import { finalize } from 'rxjs';
 export class BitacoraComponent {
 
   $table: any[] = [];
+  $tableFiltered: any[] = [];
   public isLoading = false;
   public filtros = {
     rows : 15,
     data : Array(),
-    fechaIncial: Date,
-    fechaFinal: Date
+    fechaIncial: "",
+    fechaFinal: "",
+    status : "1",
+    bFiltros: false
   };
   public loading = true;
 
@@ -120,6 +123,7 @@ export class BitacoraComponent {
       next: (response) => {
         if(response.ok) {
           this.$table = response.data;
+          this.$tableFiltered = response.data;
           return;
         }
         alert(response.data);
@@ -142,6 +146,7 @@ export class BitacoraComponent {
       next: (response) => {
         if(response.ok) {
           this.$table = response.data;
+          this.$tableFiltered = response.data;
           return;
         }
         Swal.fire("Ha sucedio un problema", response.message, "warning");
@@ -156,11 +161,36 @@ export class BitacoraComponent {
 
   //#region [Métodos privados]
   aplicarFiltros() {
-    // Filtrar el arreglo
-    // const bitacorasFiltradas = this.$table.filter((bitacora : any) => {
-    //   const bitacoraDate = this.parseCustomDate(bitacora.fecha);
-    //   return bitacoraDate >= this.filtros.fechaIncial && bitacoraDate <= this.filtros.fechaFinal;
-    // });
+    this.removeFiltros();
+    if(this.filtros.fechaIncial != "" && this.filtros.fechaFinal != "") {
+      const startDate = this.formatDate(new Date(this.filtros.fechaIncial));
+      const endDate = this.formatDate(new Date(this.filtros.fechaFinal));
+      this.$table = this.$table.filter((bitacora : any) => {
+        const bitacoraDate = this.formatDate(this.parseCustomDate(bitacora.fecha));
+        console.log(startDate+"=>"+bitacoraDate+"<="+endDate);
+        return bitacoraDate >= startDate && bitacoraDate <= endDate;
+      });
+    }
+    this.$table = this.$table.filter((bitacora : any) => {
+      switch(this.filtros.status) {
+        case "1": return true;
+        case "2": return bitacora.detalles.length > 0;
+        case "3": return bitacora.detalles.length == 0;
+        case "4": return bitacora.bFinalizado;
+      }
+    });
+    this.filtros.fechaFinal = "";
+    this.filtros.fechaIncial = "";
+    this.filtros.status = "1";   
+    this.filtros.bFiltros = true;
+  }
+
+  removeFiltros() {
+    this.$table = [];
+    this.$tableFiltered.forEach((element : any) => {
+      this.$table.push(element);
+    })
+    this.filtros.bFiltros = false;
   }
 
   parseCustomDate(dateString: string): Date {
@@ -168,9 +198,16 @@ export class BitacoraComponent {
       'ENE': 0, 'FEB': 1, 'MAR': 2, 'ABR': 3, 'MAY': 4, 'JUN': 5,
       'JUL': 6, 'AGO': 7, 'SEP': 8, 'OCT': 9, 'NOV': 10, 'DIC': 11
     };
-
+  
     let [day, month, year] = dateString.split(' ');
-    return new Date(Number(year), months[month as keyof typeof months], Number(day));
+    return new Date(Date.UTC(Number(year), months[month as keyof typeof months], Number(day)));
+  }
+
+  formatDate(date: Date): string {
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    return `${day}-${month}-${year}`;
   }
   //#endregion
 }

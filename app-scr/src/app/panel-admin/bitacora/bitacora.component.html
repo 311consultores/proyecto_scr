@@ -29,7 +29,7 @@
                             <!-- Selector de número de registros -->
                             <div class="col-md-4 col-sm-6">
                                 <label for="num-registros" class="form-label">Registros a mostrar</label>
-                                <select id="num-registros" class="form-select" [(ngModel)]="filtros.rows">
+                                <select id="num-registros" class="form-select" [(ngModel)]="filtros.rows" (change)="getResults()">
                                     <option value="15">15</option>
                                     <option value="30">30</option>
                                     <option value="50">50</option>
@@ -38,9 +38,15 @@
                             </div>
                             <!-- Botón para filtros avanzados -->
                             <div class="col-sm-2 col-lg-3">
-                                <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtrosAvanzados">
-                                    <fa-icon [icon]="['fas', 'filter']"></fa-icon>
-                                </button>
+                                @if (!filtros.bFiltros) {
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtrosAvanzados">
+                                        <fa-icon [icon]="['fas', 'filter']"></fa-icon>
+                                    </button>
+                                } @else {
+                                    <button class="btn btn-danger" type="button" (click)="removeFiltros()">
+                                        <fa-icon [icon]="['fas', 'filter-circle-xmark']"></fa-icon>
+                                    </button>
+                                }                               
                             </div>
                         </div>
                     </div>
@@ -164,19 +170,19 @@
         <!-- Filtro Estatus -->
         <label class="form-label">Estatus</label>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="iniciado" id="estatus-iniciado">
+            <input class="form-check-input" type="radio" value="1" id="estatus-iniciado" [(ngModel)]="filtros.status">
             <label class="form-check-label" for="estatus-iniciado">Todos</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="iniciado" id="estatus-iniciado">
+            <input class="form-check-input" type="radio" value="2" id="estatus-iniciado" [(ngModel)]="filtros.status">
             <label class="form-check-label" for="estatus-iniciado">Iniciado</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="capturando" id="estatus-capturando">
+            <input class="form-check-input" type="radio" value="3" id="estatus-capturando" [(ngModel)]="filtros.status">
             <label class="form-check-label" for="estatus-capturando">Capturando</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="finalizado" id="estatus-finalizado">
+            <input class="form-check-input" type="radio" value="4" id="estatus-finalizado" [(ngModel)]="filtros.status">
             <label class="form-check-label" for="estatus-finalizado">Finalizado</label>
         </div>
     </div>
