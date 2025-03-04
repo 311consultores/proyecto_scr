@@ -36,7 +36,7 @@ export class BitacoraService {
   }
   //Admin
   indexAdmin(rows : any) {
-    return this.http.get<any>(environment.apiUrl+"bitacora/admin/index");
+    return this.http.get<any>(environment.apiUrl+"bitacora/admin/index/"+rows);
   }
 
   obtenerBitacoraPorId(id_bitacora : any) {

@@ -2,10 +2,16 @@
     <div class="container py-5">
         <div class="row justify-content-center body-titulo">
             <div class="col-10 pt-4 body-header">
-                <div class="title">
-                    <img src="/svgs/libreta-lupa.svg" alt="">
-                    <h2>Bitacora de Actividades</h2>
-                    <p class="subtitle">Registra tus <b>actividades</b> realizadas durante tu horario de trabajo</p>
+                <div class="row align-items-center">
+                    <div class="col-3 d-flex justify-content-center">
+                        <img src="/imagenes/logotipo.png" class="img-responsive">
+                    </div>
+                    <div class="col-8">
+                        <div class="title">
+                            <h2>Bitacora de Actividades</h2>
+                            <p class="subtitle">Registra tus <b>actividades</b> realizadas durante tu horario de trabajo</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card col-10 mt-3">
@@ -43,35 +49,26 @@
                                 </select>
                             </div>
                             <div class="field padding-bottom--24 col-md-5 col-sm-12">
-                                <div class="d-flex justify-content-between pr-2">
-                                    <label for="sitio_proyecto" class="required">{{ bitacora.bSitio ? 'Sitio' : 'Proyecto'}}</label>
-                                    <fa-icon title="Cambiar" [icon]="['fas', 'rotate']" (click)="bitacora.bSitio = !bitacora.bSitio" style="cursor: pointer !important;color: var(--naranja-secundario);"></fa-icon>
-                                </div>
-                                <div class="sitio_proyecto">
-                                    @if(bitacora.bSitio) {
-                                        <select [(ngModel)]="bitacora.sitio_id" class="form-select" name="sitio_id" (change)="setSitio()">
-                                            <option value="0">SELECCIONA EL SITIO</option>
-                                            @for(sitio of catalogos.sitios; track $index) {
-                                                <option [value]="sitio.id_sitio">{{ sitio.sitio }}</option>
-                                            }
-                                        </select>
-                                    } @else {
-                                        <input type="text" class="form-control" name="proyecto" placeholder="Ingresa el proyecto o sitio" [(ngModel)]="bitacora.proyecto"
-                                        required #proyecto="ngModel" [class.is-invalid]="proyecto.invalid && proyecto.touched">
+                                <label for="sitio_id" class="required">Sitio</label>
+                                <select [(ngModel)]="bitacora.sitio_id" class="form-select" name="sitio_id" (change)="setSitio()" required
+                                #sitio_id="ngModel" [class.is-invalid]="sitio_id.invalid && sitio_id.touched">
+                                    <option value="0">SELECCIONA EL SITIO</option>
+                                    @for(sitio of catalogos.sitios; track $index) {
+                                        <option [value]="sitio.id_sitio">{{ sitio.sitio }}</option>
                                     }
-                                </div>
+                                </select>
                                 <div class="invalid-feedback">*Campo obligatorio*</div>
-                                
+                            </div>
+                            <div class="field padding-bottom--24 col-md-9 col-sm-12">
+                                <label for="proyecto" class="required">Proyecto</label>
+                                <input type="text" class="form-control" name="proyecto" placeholder="Ingresa el proyecto o sitio" [(ngModel)]="bitacora.proyecto"
+                                required #proyecto="ngModel" [class.is-invalid]="proyecto.invalid && proyecto.value > 0">
                             </div>
                             <div class="field padding-bottom--24 col-md-3 col-sm-12">
                                 <label for="fecha" class="required">Fecha</label>
                                 <input type="date" class="form-control" name="fecha" [(ngModel)]="bitacora.fecha" required
                                     #fechaRef="ngModel" [class.is-invalid]="fechaRef.invalid && fechaRef.touched">
-                                    <div class="invalid-feedback">*Campo obligatorio*</div>
-                            </div>
-                            <div class="field padding-bottom--24 col-md-9 col-sm-12">
-                                <label for="equipo">Equipo</label>
-                                <input type="text" class="form-control" name="equipo" placeholder="Ingresa el nombre del equipo" [(ngModel)]="bitacora.equipo">
+                                <div class="invalid-feedback">*Campo obligatorio*</div>
                             </div>
                             <div class="d-flex justify-content-end align-items-center mt-3 gap-2">
                                 <button class="btn btn-success" [disabled]="miFormulario.invalid">
@@ -82,7 +79,7 @@
                                     }
                                 </button>   
                             </div>
-                            <div class="col-12">
+                            <div class="col-12 mt-2">
                                 <app-alerta
                                     class="w-100"
                                     message="{{funciones.alerta.sMessage}}"
@@ -143,13 +140,10 @@
                                     <app-galeria [images]="actividad.fotografias" (photosEvent)="actividad.fotografias = $event"></app-galeria>           
                                 </div>
                                 <div class="d-flex justify-content-end align-items-center mt-3 gap-2">
-                                    <app-alerta
-                                        class="w-100"
-                                        (updateAlert)="actividad.alerta = $event"
-                                        [message]="funciones.alerta.sMessage"
-                                        [type]="funciones.alerta.sTipo"
-                                        [isVisible]="actividad.alerta">
-                                    </app-alerta>
+                                    <!-- Input oculto para subir imágenes -->
+                                    <input type="file" [id]="'fileInput' + $index" class="d-none" multiple (change)="subirImagenes($event, $index)" accept="image/*">
+                                    <!-- Botón para subir imágenes -->
+                                    <fa-icon class="btn btn-primary text-white" (click)="abrirInput($index)" [icon]="['fas', 'images']"></fa-icon>
                                     <!-- Botón para abrir la cámara y asociar fotos a esta actividad -->
                                     <fa-icon class="btn btn-info text-white" (click)="openWebcamForActivity($index)" [icon]="['fas', 'camera']"></fa-icon>
                                     <button class="btn-success btn" type="submit">
@@ -159,6 +153,15 @@
                                             {{ actividad.id_actividad == 0 ? 'Guardar' : 'Editar' }}
                                         }
                                     </button> 
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <app-alerta
+                                        class="w-100"
+                                        (updateAlert)="actividad.alerta = $event"
+                                        [message]="funciones.alerta.sMessage"
+                                        [type]="funciones.alerta.sTipo"
+                                        [isVisible]="actividad.alerta">
+                                    </app-alerta>
                                 </div>
                             </form>
                         </div>

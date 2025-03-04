@@ -28,7 +28,7 @@
                         <div class="row g-3 align-items-end">
                             <!-- Selector de número de registros -->
                             <div class="col-md-4 col-sm-6">
-                                <label for="num-registros" class="form-label">Registros a mostrar</label>
+                                <label for="num-registros" class="form-label label">Registros a mostrar</label>
                                 <select id="num-registros" class="form-select" [(ngModel)]="filtros.rows" (change)="getResults()">
                                     <option value="15">15</option>
                                     <option value="30">30</option>
@@ -50,96 +50,143 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-12">
+                        <button class="btn btn-outline-dark {{ tipo_show == 0 ? 'active' : ''}}" type="button" (click)="tipo_show = 0" title="Tabla" >
+                            <fa-icon [icon]="['fas', 'table-list']"></fa-icon>
+                        </button>
+                        <button class="btn btn-outline-dark mx-2 {{ tipo_show == 1 ? 'active' : ''}}" type="button" (click)="tipo_show = 1" title="Tarjetas">
+                            <fa-icon [icon]="['fas', 'table-cells-large']"></fa-icon>
+                        </button>
+                    </div>
                 </div>
                 <div class="row mt-5">
                     @if (!loading) {
-                        @for (item of $table; track $index) {
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-                                <div class="card card-aunt">
-                                    <div class="card-block">
-                                        <div class="card-header-aunt">
-                                            <div class="d-none d-sm-block image-header">
-                                                <img class="img-fluid rounded-circle" style="width:65px;height: 65px;" src="/imagenes/img-grua.jpg" alt="dashboard-user">
-                                            </div>
-                                            <div class="card-title">
-                                                <h5 class="text-truncate">{{ item.folio_reporte }}</h5>
-                                                <span class="text-truncate">{{ item.bSitio ? item.sitio : item.proyecto }}</span>
-                                                <span class="date text-truncate">{{ item.fecha }}</span>
-                                            </div>
-                                        </div>
-                                        <ul class="task-list">
-                                            @if (item.detalles.length > 0) {
-                                                <li style="margin-bottom: 1px !important;">
-                                                    <div class="task-title d-flex align-items-center justify-content-between">
-                                                        <h6 class="my-0 text-truncate">{{ item.detalles[0].orden_trabajo }}</h6>
-                                                        <span>{{ item.detalles[0].hora_creacion }}</span>
+                        @if($table.length > 0) {
+                            @if(tipo_show == 1) {
+                                @for (item of $table; track $index) {   
+                                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                                        <div class="card card-aunt">
+                                            <div class="card-block">
+                                                <div class="card-header-aunt">
+                                                    <div class="d-none d-sm-block image-header">
+                                                        <img class="img-fluid rounded-circle" style="width:65px;height: 65px;" src="/imagenes/img-grua.jpg" alt="dashboard-user">
                                                     </div>
-                                                    <i class="task-icon bg-c-green"></i>
-                                                    <p class="text-muted text-truncate">{{ item.detalles[0].observacion }}</p>
-                                                </li>
-                                                @if(item.detalles.length > 1) {
-                                                    <li class="btn_mostrar" 
-                                                        data-bs-toggle="collapse" 
-                                                        [attr.href]="'#collapseExample' + $index" 
-                                                        role="button" 
-                                                        aria-expanded="false" 
-                                                        [attr.aria-controls]="'collapseExample' + $index"
-                                                        style="margin-bottom: 5px;">
-                                                        Mostrar más
-                                                    </li>
-                                                } @else {
-                                                    <li style="margin-bottom: 5px;">&nbsp;</li>
-                                                }
-                                                <div class="collapse" [id]="'collapseExample' + $index">
-                                                    @for (actividad of item.detalles; track $index) {
-                                                        @if( $index > 0 ) {
-                                                            <li>
-                                                                <div class="task-title d-flex align-items-center justify-content-between">
-                                                                    <h6 class="my-0 text-truncate">{{ actividad.orden_trabajo }}</h6>
-                                                                    <span>{{ actividad.hora_creacion }}</span>
-                                                                </div>
-                                                                <i class="task-icon bg-c-green"></i>
-                                                                <p class="text-muted text-truncate">{{ actividad.observacion }}</p>
-                                                            </li>
-                                                        }                                                    
-                                                    }
+                                                    <div class="card-title">
+                                                        <h5 class="text-truncate">{{ item.folio_reporte }}</h5>
+                                                        <span class="text-truncate">{{ item.proyecto }}</span>
+                                                        <span class="date text-truncate">{{ item.fecha }}</span>
+                                                    </div>
                                                 </div>
-                                            } @else {
-                                                <li style="margin-bottom: 1px !important;">
-                                                    <div class="task-title d-flex align-items-center justify-content-between">
-                                                        <h6 class="my-0 text-truncate">Sin actividades</h6>
-                                                        <span>00:00</span>
+                                                <ul class="task-list">
+                                                    @if (item.detalles.length > 0) {
+                                                        <li style="margin-bottom: 1px !important;">
+                                                            <div class="task-title d-flex align-items-center justify-content-between">
+                                                                <h6 class="my-0 text-truncate">{{ item.detalles[0].orden_trabajo }}</h6>
+                                                                <span>{{ item.detalles[0].hora_creacion }}</span>
+                                                            </div>
+                                                            <i class="task-icon bg-c-green"></i>
+                                                            <p class="text-muted text-truncate">{{ item.detalles[0].observacion }}</p>
+                                                        </li>
+                                                        @if(item.detalles.length > 1) {
+                                                            <li class="btn_mostrar" 
+                                                                data-bs-toggle="collapse" 
+                                                                [attr.href]="'#collapseExample' + $index" 
+                                                                role="button" 
+                                                                aria-expanded="false" 
+                                                                [attr.aria-controls]="'collapseExample' + $index"
+                                                                style="margin-bottom: 5px;">
+                                                                Mostrar más
+                                                            </li>
+                                                        } @else {
+                                                            <li style="margin-bottom: 5px;">&nbsp;</li>
+                                                        }
+                                                        <div class="collapse" [id]="'collapseExample' + $index">
+                                                            @for (actividad of item.detalles; track $index) {
+                                                                @if( $index > 0 ) {
+                                                                    <li>
+                                                                        <div class="task-title d-flex align-items-center justify-content-between">
+                                                                            <h6 class="my-0 text-truncate">{{ actividad.orden_trabajo }}</h6>
+                                                                            <span>{{ actividad.hora_creacion }}</span>
+                                                                        </div>
+                                                                        <i class="task-icon bg-c-green"></i>
+                                                                        <p class="text-muted text-truncate">{{ actividad.observacion }}</p>
+                                                                    </li>
+                                                                }                                                    
+                                                            }
+                                                        </div>
+                                                    } @else {
+                                                        <li style="margin-bottom: 1px !important;">
+                                                            <div class="task-title d-flex align-items-center justify-content-between">
+                                                                <h6 class="my-0 text-truncate">Sin actividades</h6>
+                                                                <span>00:00</span>
+                                                            </div>
+                                                            <i class="task-icon bg-c-green"></i>
+                                                            <p class="text-muted text-truncate">En proceso</p>
+                                                        </li>
+                                                        <li class="">&nbsp;</li>
+                                                    }                                       
+                                                </ul>
+                                                @if (item.bFinalizado ) {
+                                                    <strong class="text-success mt-3">Finalizado</strong>
+                                                    <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                                        <div class="progress-bar bg-success" style="width: 100%">100%</div>
                                                     </div>
-                                                    <i class="task-icon bg-c-green"></i>
-                                                    <p class="text-muted text-truncate">En proceso</p>
-                                                </li>
-                                                <li class="">&nbsp;</li>
-                                            }                                       
-                                        </ul>
-                                        @if (item.bFinalizado ) {
-                                            <strong class="text-success mt-3">Finalizado</strong>
-                                            <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-success" style="width: 100%">100%</div>
+                                                } @else if (item.detalles.length > 0) {
+                                                    <strong class="text-primary mt-3">Capturando...</strong>
+                                                    <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                                        <div class="progress-bar" style="width: 66%">66%</div>
+                                                    </div>
+                                                } @else {
+                                                    <strong class="text-warning mt-3">Bitacora Iniciada</strong>
+                                                    <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                                        <div class="progress-bar bg-warning" style="width: 33%">33%</div>
+                                                    </div>
+                                                }                                    
+                                                <div class="widget-49-meeting-action d-flex justify-content-end mt-1">
+                                                    <a class="btn btn-sm btn-flash-border-primary" (click)="editarBitacora(item.id_bitacora)">EDITAR</a>
+                                                    <a class="btn btn-sm btn-flash-border-primary" (click)="getPDF(item.id_bitacora)">VISUALIZAR</a>
+                                                </div>
                                             </div>
-                                        } @else if (item.detalles.length > 0) {
-                                            <strong class="text-primary mt-3">Capturando...</strong>
-                                            <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar" style="width: 66%">66%</div>
-                                            </div>
-                                        } @else {
-                                            <strong class="text-warning mt-3">Bitacora Iniciada</strong>
-                                            <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                                <div class="progress-bar bg-warning" style="width: 33%">33%</div>
-                                            </div>
-                                        }                                    
-                                        <div class="widget-49-meeting-action d-flex justify-content-end mt-1">
-                                            <a class="btn btn-sm btn-flash-border-primary" (click)="editarBitacora(item.id_bitacora)">EDITAR</a>
-                                            <a class="btn btn-sm btn-flash-border-primary" (click)="getPDF(item.id_bitacora)">VISUALIZAR</a>
                                         </div>
-                                    </div>
+                                    </div>                      
+                                }
+                            } @else
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <th>Folio</th>
+                                            <th>Proyecto</th>
+                                            <th>Sitio</th>
+                                            <th>Fecha</th>
+                                            <th>Acciones</th>
+                                        </thead>
+                                        <tbody>
+                                            @for (item of $table; track $index) {  
+                                                <tr>
+                                                    <td>{{ item.folio_reporte }}</td>
+                                                    <td>{{ item.proyecto }}</td>
+                                                    <td>{{ item.sitio }}</td>
+                                                    <td>{{ item.fecha }}</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-warning text-white" (click)="editarBitacora(item.id_bitacora)">
+                                                            <fa-icon [icon]="['fas', 'file-pen']"></fa-icon>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-info mx-2 text-white" (click)="getPDF(item.id_bitacora)">
+                                                            <fa-icon [icon]="['fas', 'file-pdf']"></fa-icon>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
                                 </div>
+                            } 
+                        } @else {
+                            <div class="d-flex justify-content-center w-100">
+                                <strong>Aún no se han registado actividades</strong>
                             </div>
-                        }
+                        }                       
                     } @else {
                         <div class="d-flex justify-content-center w-100">
                             <span class="loader"></span>

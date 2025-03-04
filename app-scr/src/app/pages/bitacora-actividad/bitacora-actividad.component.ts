@@ -7,7 +7,7 @@ import { WebcamComponent } from '../../shared/components/webcam/webcam.component
 import { AlertaComponent } from '../../shared/components/alerta/alerta.component';
 import { GaleriaComponent } from '../../shared/components/galeria/galeria.component';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faRotate, faCamera } from '@fortawesome/free-solid-svg-icons';
+import { faRotate, faCamera, faImages } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
 import * as LZString from 'lz-string';
 
@@ -40,12 +40,10 @@ export class BitacoraActividadComponent {
     titulo: "",
     folio_reporte: "",
     proyecto: "",
-    bSitio: false,
     sitio_id : 0,
     sitio: '',
     cliente_id: 0,
     fecha: this.formatearFecha(new Date()),
-    equipo: "",
     actividades: [] as Actividad[]
   };
   public funciones = {
@@ -64,7 +62,7 @@ export class BitacoraActividadComponent {
       private library: FaIconLibrary,
       private _bitacoraService: BitacoraService ) 
     { 
-      library.addIcons(faRotate, faCamera);
+      library.addIcons(faRotate, faCamera, faImages);
     }
 
   ngOnInit() {
@@ -100,8 +98,7 @@ export class BitacoraActividadComponent {
           this.funciones.alerta.sMessage=response.data;
           this.funciones.alerta.sTipo = "success";
           setTimeout(()=> {
-            this.bitacora.titulo = this.bitacora.folio_reporte + " - ";
-            this.bitacora.titulo += this.bitacora.bSitio ? this.bitacora.sitio : this.bitacora.proyecto;
+            this.bitacora.titulo = this.bitacora.folio_reporte + " - " + this.bitacora.proyecto;
             if(!response.bUpdate) {
               this.bitacora.id_bitacora = response.id;
               this.nuevaActividad();
@@ -235,6 +232,27 @@ export class BitacoraActividadComponent {
       fotografias: [],
       alerta: 'false'
     });
+  }
+
+  abrirInput(index: number) {
+    const inputFile = document.getElementById('fileInput' + index) as HTMLInputElement;
+    if (inputFile) {
+        inputFile.click(); // Simula el clic en el input oculto
+    }
+  }
+
+  subirImagenes(event: any, index: number) {
+    const archivos = event.target.files;
+    if (archivos.length > 0) {
+        for (let archivo of archivos) {
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                // Guardar la imagen en el array de la actividad correspondiente
+                this.bitacora.actividades[index].fotografias.push(e.target.result);
+            };
+            reader.readAsDataURL(archivo);
+        }
+    }
   }
 
   //#region [Metodos Privados]

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { LoadingModalComponent } from '../../shared/components/loading-modal/loading-modal.component';
 import * as LZString from 'lz-string';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faFilter, faFilterCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faFilePdf, faFilePen, faFilter, faFilterCircleXmark, faPen, faTableCells, faTableCellsLarge, faTableList } from '@fortawesome/free-solid-svg-icons';
 import { FormsModule } from '@angular/forms';
 import { AutocompleteComponent } from '../../shared/components/autocomplete/autocomplete.component';
 import { finalize } from 'rxjs';
@@ -34,6 +34,7 @@ export class BitacoraComponent {
     status : "1",
     bFiltros: false
   };
+  public tipo_show = 0;
   public loading = true;
 
   constructor(
@@ -41,7 +42,7 @@ export class BitacoraComponent {
     private router : Router,
     private _bitacoraService: BitacoraService
   ) {
-    this.library.addIcons(faFilter, faFilterCircleXmark);
+    this.library.addIcons(faFilter, faFilterCircleXmark, faTableList, faTableCellsLarge, faFilePen, faFilePdf);
   }
 
   ngOnInit() {

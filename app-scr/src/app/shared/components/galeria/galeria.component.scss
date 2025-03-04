@@ -4,7 +4,7 @@
     align-items: center;
     border: 1px solid #dee2e6;
     border-radius: 0.375rem;
-    background-color: black; /* Fondo negro para el contenedor */
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo negro para el contenedor */
 }
 
 .carousel {
@@ -16,7 +16,6 @@
     display: flex;
     align-items: center; /* Centrar verticalmente */
     justify-content: center; /* Centrar horizontalmente */
-    background-color: black; /* Fondo negro para el carrusel */
 }
 
 .carousel img {
