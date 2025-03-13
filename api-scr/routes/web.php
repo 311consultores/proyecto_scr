@@ -33,7 +33,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->post('finalizarBitacora','BitacoraController@finalizarBitacora');
         //Admin
         $router->group(['prefix' => 'admin'], function () use ($router) {
-            $router->get('index', 'BitacoraController@adminIndex');
+            $router->get('index/{rows}', 'BitacoraController@adminIndex');
             $router->get('obtenerBitacoraPorId/{id}/{tipo}', 'BitacoraController@obtenerBitacoraPorId');
             $router->get('poblarFiltros', 'BitacoraController@poblarFiltros');
             $router->post("obtenerResultadoBusqueda", "BitacoraController@obtenerResultadoBusqueda");

@@ -45,24 +45,26 @@ class BitacoraExport {
         $pdf->SetFont('Arial','B',12);
         $pdf->Cell(30,5,"Folio",0,0,"L",1);
         $pdf->setX($pdf->getX()+5);
-        $titulo = $data->bSitio ? 'Sito' : 'Proyecto';
-        $pdf->Cell(110,5,$titulo,0,0,"L",1);
+        $pdf->Cell(90,5,'Sitio',0,0,"L",1);
         $pdf->setX($pdf->getX()+5);
-        $pdf->Cell(50,5,"Cliente",0,0,"L",1);
+        $pdf->Cell(70,5,"Responsable",0,0,"L",1);
         $pdf->setXY(5,36);
         $pdf->SetFont('Arial','',11);
         $pdf->Cell(30,5,utf8_decode($data->folio_reporte),0,0,"L",1);
         $pdf->setX($pdf->getX()+5);
-        $p_titulo = $data->bSitio ? self::truncarTexto($pdf,$data->sitio,110) : self::truncarTexto($pdf,$data->proyecto,110);
-        $pdf->Cell(110,5,utf8_decode($p_titulo),0,0,"L",1);
+        $pdf->Cell(90,5,utf8_decode(self::truncarTexto($pdf,$data->sitio,110)),0,0,"L",1);
         $pdf->setX($pdf->getX()+5);
-        $pdf->Cell(50,5,utf8_decode($data->cliente),0,0,"L",1);
+        $pdf->Cell(70,5,utf8_decode($data->responsable),0,0,"L",1);
         $pdf->setXY(5,43);
         $pdf->SetFont('Arial','B',12);
-        $pdf->Cell(30,5,"Equipo",0,0,"L",1);
+        $pdf->Cell(30,5,"Cliente",0,0,"L",1);
+        $pdf->setX($pdf->getX()+5);
+        $pdf->Cell(170,5,"Proyecto",0,0,"L",1);
         $pdf->setXY(5,49);
         $pdf->SetFont('Arial','',11);
-        $pdf->Cell(200,5,utf8_decode(self::truncarTexto($pdf,$data->equipo,100)),0,0,"L",1);
+        $pdf->Cell(30,5,utf8_decode($data->cliente),0,0,"L",1);
+        $pdf->setX($pdf->getX()+5);
+        $pdf->Cell(170,5,utf8_decode(self::truncarTexto($pdf,$data->proyecto,200)),0,0,"L",1);
         #endregion
         #region [Actividades]
         $pdf->setXY(5,$pdf->getY()+10);

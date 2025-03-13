@@ -53,21 +53,20 @@ class BitacoraController extends Controller
         $validator = Validator::make($request->all(),[
             "folio_reporte" => 'required|max:15',
             "cliente_id" => 'required',
+            "sitio_id" => 'required|integer|min:1',
             "fecha" => 'required|date',
-            "equipo" => 'max:300',
+            "proyecto" => 'required|max:300'
         ],[
             'folio_reporte.required' => "El campo 'Reporte' es obligatorio",
             'folio_reporte.max' => "El campo 'Reporte' acepta maximo 15 caracteres",
-            'sitio_proyecto.required' => "El campo 'Sitio y/o Proyecto' es obligatorio",
-            'sitio_proyecto.max' => "El campo 'Sitio y/o Proyecto' acepta maximo 300 caracteres",
-            'cliente.max' => "El campo 'Cliente' acepta maximo 300 caracteres",
+            'proyecto.required' => "El campo 'Proyecto' es obligatorio",
+            'proyecto.max' => "El campo 'Proyecto' acepta maximo 300 caracteres",
+            'cliente.required' => "El campo 'Cliente' es obligatorio",
             'fecha.required' => "El campo 'Fecha' es obligatorio",
             'fecha.date' => "El campo 'Fecha' no es una fecha valida",
-            'equipo.max' => "El campo 'Equipo' acepta maximo 300 caracteres"
+            'sitio_id.required' => "El campo 'Sitio' es obligatorio",
+            'sitio_id.min' => "No has seleccionado un Sitio"
         ]);
-        if(boolval($request->bSitio)) {
-            if(intval($request->sitio_id) == 0) return ["ok" => false, "message" => "No se ha seleccionado un sitio"];
-        }
         if ($validator->fails()) {
             $errores = [];
             foreach ($validator->errors()->all() as $key => $mensaje) {
@@ -87,7 +86,7 @@ class BitacoraController extends Controller
 
             // Obtener los datos del request como un array
             $bitacora = $request->only([
-                'folio_reporte', 'bSitio', 'proyecto', 'sitio_id', 'cliente_id', 'fecha', 'equipo'
+                'folio_reporte', 'proyecto', 'sitio_id', 'cliente_id', 'fecha'
             ]);
             $bitacora['bFinalizado'] = 0;
             $bitacora['dt_creacion'] = date('Y-m-d');
@@ -121,12 +120,14 @@ class BitacoraController extends Controller
         #region [Validaciones]
             $validator = Validator::make($request->all(),[
                 "bitacora_id" => 'required',
+                "responsable" => 'required|max:350',
                 "orden_trabajo" => 'required|max:300',
                 "equipo" => 'required|max:300',
-                "observacion" => 'max:5000',
+                "observacion" => 'max:10000',
                 "fotografias" => 'array'
             ],[
                 'bitacora_id.required' => "El id_bitacora es obligatorio",
+                'responsable.required' => "El campo 'Responsable' es obligatorio",
                 'orden_trabajo.required' => "El campo 'Orden de Trabajo' es obligatorio",
                 'orden_trabajo.max' => "El campo 'Orden de Trabajo' acepta maximo 300 caracteres",
                 'equipo.required' => "El campo 'Equipo' es obligatorio",
@@ -154,7 +155,7 @@ class BitacoraController extends Controller
 
             // Obtener los datos del request como un array
             $actividad = $request->only([
-                'bitacora_id','orden_trabajo', 'equipo', 'observacion'
+                'bitacora_id','orden_trabajo', 'equipo', 'observacion', 'responsable'
             ]);
             $actividad['hora_creacion'] = date('H:i:s');
             $actividad['activo'] = 1;
@@ -226,7 +227,7 @@ class BitacoraController extends Controller
     public function editarBitacora(Request $request) {
         try {
             $bitacora = $request->only([
-                'folio_reporte', 'bSitio', 'proyecto', 'sitio_id', 'cliente_id', 'fecha', 'equipo'
+                'folio_reporte', 'proyecto', 'sitio_id', 'cliente_id', 'fecha', 'responsable'
             ]);
             DB::beginTransaction();
             //Actualizamos
@@ -316,15 +317,15 @@ class BitacoraController extends Controller
     }
 
     //Admin Methods
-    public function adminIndex() {
+    public function adminIndex($rows) {
         try {
             $bitacoras = DB::table('bitacora as b')
             ->select(
                 'b.id_bitacora',
                 'b.folio_reporte',
-                'b.bSitio',
                 'b.proyecto',
                 'b.fecha',
+                'b.responsable',
                 's.sitio',
                 'b.bFinalizado',
                 DB::raw("COALESCE(
@@ -340,8 +341,9 @@ class BitacoraController extends Controller
             ->leftJoin('det_bitacora as d', 'b.id_bitacora', '=', 'd.bitacora_id')
             ->join('cat_clientes as c', 'b.cliente_id', '=', 'c.id_cliente')
             ->leftJoin('cat_sitios as s', 'b.sitio_id', '=', 's.id_sitio')
-            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.bSitio', 'b.proyecto', 'b.fecha', 'b.equipo', 'c.cliente', 's.sitio', 'b.dt_creacion','b.bFinalizado')
+            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.proyecto', 'b.responsable', 'b.fecha', 'c.cliente', 's.sitio', 'b.dt_creacion','b.bFinalizado')
             ->orderBy("b.fecha","desc")
+            ->take($rows)
             ->get()
             ->map(function ($bitacora) {
                 $detalles = json_decode($bitacora->detalles, true);
@@ -366,14 +368,13 @@ class BitacoraController extends Controller
             ->select(
                 'b.id_bitacora',
                 'b.folio_reporte',
-                'b.bSitio',
                 'b.proyecto',
+                'b.responsable',
                 'b.fecha',
                 'b.sitio_id',
                 's.sitio',
                 'b.cliente_id',
                 'c.cliente',
-                'b.equipo',
                 DB::raw("COALESCE(
                     JSON_ARRAYAGG(
                         IF(d.id_actividad IS NOT NULL, JSON_OBJECT(
@@ -388,14 +389,13 @@ class BitacoraController extends Controller
             ->leftJoin('det_bitacora as d', 'b.id_bitacora', '=', 'd.bitacora_id')
             ->leftJoin('cat_sitios as s','s.id_sitio', '=', 'b.sitio_id')
             ->join('cat_clientes as c','c.id_cliente', '=', 'b.cliente_id')
-            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.bSitio', 'b.proyecto', 'b.fecha', 'b.equipo', 'b.cliente_id', 'b.sitio_id','s.sitio','c.cliente')
+            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.proyecto', 'b.responsable', 'b.fecha','b.cliente_id', 'b.sitio_id','s.sitio','c.cliente')
             ->where('id_bitacora', $id)
             ->get()
             ->map(function ($bitacora) use ($tipo) {
                 $actividades = json_decode($bitacora->actividades, true);
                 $bitacora->actividades = $actividades[0] !== null ? $actividades : [];
-                $bitacora->titulo = $bitacora->folio_reporte . " - ";
-                $bitacora->titulo .= $bitacora->bSitio ? $bitacora->sitio : $bitacora->proyecto;
+                $bitacora->titulo = $bitacora->proyecto;
                 //Buscamos las fotografias si cuenta
                 foreach($bitacora->actividades as &$actividad) {
                     $actividad["fotografias"] = DB::table('fotos_bitacora')
@@ -453,7 +453,6 @@ class BitacoraController extends Controller
             ->select(
                 'b.id_bitacora',
                 'b.folio_reporte',
-                'b.bSitio',
                 'b.proyecto',
                 'b.fecha',
                 's.sitio',
@@ -471,7 +470,7 @@ class BitacoraController extends Controller
             ->leftJoin('det_bitacora as d', 'b.id_bitacora', '=', 'd.bitacora_id')
             ->join('cat_clientes as c', 'b.cliente_id', '=', 'c.id_cliente')
             ->leftJoin('cat_sitios as s', 'b.sitio_id', '=', 's.id_sitio')
-            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.bSitio', 'b.proyecto', 'b.fecha', 'b.equipo', 'c.cliente', 's.sitio', 'b.dt_creacion','b.bFinalizado')
+            ->groupBy('b.id_bitacora', 'b.folio_reporte', 'b.proyecto', 'b.fecha', 'c.cliente', 's.sitio', 'b.dt_creacion','b.bFinalizado')
             ->orderBy("b.fecha","desc")
             ->when(isset($request->id_sitio) && $request->id_sitio > 0, function($query) use ($request) {
                 return $query->where("s.id_sitio",$request->id_sitio);
