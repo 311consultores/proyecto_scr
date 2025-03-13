@@ -159,15 +159,17 @@
                                             <th>Proyecto</th>
                                             <th>Sitio</th>
                                             <th>Fecha</th>
+                                            <th>Responsable</th>
                                             <th>Acciones</th>
                                         </thead>
                                         <tbody>
                                             @for (item of $table; track $index) {  
                                                 <tr>
                                                     <td>{{ item.folio_reporte }}</td>
-                                                    <td>{{ item.proyecto }}</td>
+                                                    <td class="text-truncate">{{ item.proyecto }}</td>
                                                     <td>{{ item.sitio }}</td>
                                                     <td>{{ item.fecha }}</td>
+                                                    <td class="text-truncate">{{ item.responsable }}</td>
                                                     <td>
                                                         <button class="btn btn-sm btn-warning text-white" (click)="editarBitacora(item.id_bitacora)">
                                                             <fa-icon [icon]="['fas', 'file-pen']"></fa-icon>

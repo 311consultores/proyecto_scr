@@ -37,9 +37,11 @@ export class BitacoraActividadComponent {
   public catalogos : any = {"clientes" : [], "sitios": []};
   public bitacora = {
     id_bitacora: null,
+    tipo_bitacora : 1,
     titulo: "",
     folio_reporte: "",
     proyecto: "",
+    responsable: "",
     sitio_id : 0,
     sitio: '',
     cliente_id: 0,

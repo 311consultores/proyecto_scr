@@ -30,10 +30,20 @@
                                 }
                             </h5>
                         </div>
-                        <form #miFormulario="ngForm" class="row needs-validation collapse {{ bitacora.id_bitacora == null ? 'show' : '' }}" 
+                        <form #miFormulario="ngForm" class="row needs-validation collapse g-1 {{ bitacora.id_bitacora == null ? 'show' : '' }}" 
                             id="collapse-form" aria-labelledby="headingOne" data-bs-parent="#accordion-form" 
                             novalidate (ngSubmit)="enviarFormularioBitacora()">
-                            <div class="field padding-bottom--24 col-md-3 col-sm-12">
+                            <div class="field padding-bottom--24 col-md-2 col-sm-12">
+                                <label for="tipo_bitacora" class="required">Bitacora</label>
+                                <select [(ngModel)]="bitacora.tipo_bitacora" class="form-select" name="tipo_bitacora"  required
+                                #tipo_bitacora="ngModel" [class.is-invalid]="tipo_bitacora.invalid && tipo_bitacora.touched">
+                                    <option value="1">MAI</option>
+                                    <option value="2">SCE</option>
+                                    <option value="3">MPR</option>
+                                </select>
+                                <div class="invalid-feedback">*Campo obligatorio*</div>
+                            </div>
+                            <div class="field padding-bottom--24 col-md-2 col-sm-12">
                                 <label for="reporte">Reporte</label>
                                 <input type="text" name="reporte" id="reporte" [(ngModel)]="bitacora.folio_reporte" placeholder="000-00-00" 
                                 style="text-transform: uppercase;" class="form-control" disabled>
@@ -48,7 +58,7 @@
                                     }                                 
                                 </select>
                             </div>
-                            <div class="field padding-bottom--24 col-md-5 col-sm-12">
+                            <div class="field padding-bottom--24 col-md-4 col-sm-12">
                                 <label for="sitio_id" class="required">Sitio</label>
                                 <select [(ngModel)]="bitacora.sitio_id" class="form-select" name="sitio_id" (change)="setSitio()" required
                                 #sitio_id="ngModel" [class.is-invalid]="sitio_id.invalid && sitio_id.touched">
@@ -60,15 +70,21 @@
                                 <div class="invalid-feedback">*Campo obligatorio*</div>
                             </div>
                             <div class="field padding-bottom--24 col-md-9 col-sm-12">
-                                <label for="proyecto" class="required">Proyecto</label>
-                                <input type="text" class="form-control" name="proyecto" placeholder="Ingresa el proyecto o sitio" [(ngModel)]="bitacora.proyecto"
-                                required #proyecto="ngModel" [class.is-invalid]="proyecto.invalid && proyecto.value > 0">
+                                <label for="responsable" class="required">Responsable</label>
+                                <input type="text" class="form-control" name="responsable" placeholder="Ingresa el nombre del responsable" [(ngModel)]="bitacora.responsable"
+                                required #responsable="ngModel" [class.is-invalid]="responsable.invalid && responsable.value > 0">
+                                <div class="invalid-feedback">*Campo obligatorio*</div>
                             </div>
                             <div class="field padding-bottom--24 col-md-3 col-sm-12">
                                 <label for="fecha" class="required">Fecha</label>
                                 <input type="date" class="form-control" name="fecha" [(ngModel)]="bitacora.fecha" required
                                     #fechaRef="ngModel" [class.is-invalid]="fechaRef.invalid && fechaRef.touched">
                                 <div class="invalid-feedback">*Campo obligatorio*</div>
+                            </div>
+                            <div class="field padding-bottom--24 col-sm-12">
+                                <label for="proyecto" class="required">Proyecto</label>
+                                <input type="text" class="form-control" name="proyecto" placeholder="Ingresa el proyecto o sitio" [(ngModel)]="bitacora.proyecto"
+                                required #proyecto="ngModel" [class.is-invalid]="proyecto.invalid && proyecto.value > 0">
                             </div>
                             <div class="d-flex justify-content-end align-items-center mt-3 gap-2">
                                 <button class="btn btn-success" [disabled]="miFormulario.invalid">
