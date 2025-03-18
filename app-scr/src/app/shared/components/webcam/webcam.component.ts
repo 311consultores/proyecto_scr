@@ -1,14 +1,33 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild, ElementRef, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
-import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCamera, faCheck, faXmark, faCircleXmark, faCameraRotate } from '@fortawesome/free-solid-svg-icons';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+import {
+  FaIconLibrary,
+  FontAwesomeModule,
+} from '@fortawesome/angular-fontawesome';
+import {
+  faCamera,
+  faCheck,
+  faXmark,
+  faCircleXmark,
+  faCameraRotate,
+} from '@fortawesome/free-solid-svg-icons';
+import { BitacoraService } from '../../../core/services/bitacora.service';
 
 @Component({
   selector: 'app-webcam',
-  imports: [
-    FontAwesomeModule
-  ],
+  imports: [FontAwesomeModule],
   templateUrl: './webcam.component.html',
-  styleUrl: './webcam.component.scss'
+  styleUrl: './webcam.component.scss',
 })
 export class WebcamComponent implements OnChanges {
   fotografias: any;
@@ -26,7 +45,8 @@ export class WebcamComponent implements OnChanges {
 
   constructor(
     library: FaIconLibrary,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private _bitacoraService: BitacoraService
   ) {
     library.addIcons(faCamera, faCheck, faXmark, faCircleXmark, faCameraRotate);
   }
@@ -44,20 +64,20 @@ export class WebcamComponent implements OnChanges {
     try {
       this.fotografias = this.images;
       this.iCont = this.fotografias.length;
-  
+
       // Iniciar con la cámara trasera
       const constraints: MediaStreamConstraints = {
         video: {
           aspectRatio: 9 / 16,
           width: { min: 1280, ideal: 1920 }, // Resolución mínima e ideal
           height: { min: 720, ideal: 1080 }, // Resolución mínima e ideal
-          facingMode: 'environment'
+          facingMode: 'environment',
         },
         audio: false,
       };
-  
+
       this.videoStream = await navigator.mediaDevices.getUserMedia(constraints);
-  
+
       // Asignar el stream al elemento <video>
       if (this.videoElementRef && this.videoElementRef.nativeElement) {
         this.videoElementRef.nativeElement.srcObject = this.videoStream;
@@ -78,7 +98,7 @@ export class WebcamComponent implements OnChanges {
         video: {
           deviceId: deviceId ? { exact: deviceId } : undefined, // Usar el dispositivo específico
           aspectRatio: 9 / 16, // Forzar relación de aspecto vertical
-          facingMode: 'environment' // Cámara trasera por defecto
+          facingMode: 'environment', // Cámara trasera por defecto
         },
         audio: false,
       };
@@ -106,57 +126,75 @@ export class WebcamComponent implements OnChanges {
   }
 
   deleteLastPhoto() {
-    this.fotografias = this.fotografias.slice(0, -1);
-    this.iCont--;
+    this._bitacoraService
+      .eliminarFotoTemp(this.fotografias[this.fotografias.length - 1])
+      .subscribe({
+        next: (response) => {
+          if (response.ok) {
+            this.fotografias = this.fotografias.slice(0, -1);
+            this.iCont--;
+          }
+        },
+      });
   }
 
   capturarFoto() {
     if (!this.videoElementRef?.nativeElement) return;
-  
+
     const video = this.videoElementRef.nativeElement;
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-  
+
     if (!context) {
-      console.error("Error: No se pudo obtener el contexto del canvas.");
+      console.error('Error: No se pudo obtener el contexto del canvas.');
       return;
     }
-  
+
     // Obtener dimensiones originales del video
     const videoWidth = video.videoWidth || video.clientWidth;
     const videoHeight = video.videoHeight || video.clientHeight;
-  
+
     if (!videoWidth || !videoHeight) {
-      console.error("Error: No se pudo obtener el tamaño del video.");
+      console.error('Error: No se pudo obtener el tamaño del video.');
       return;
     }
-  
+
     // Establecer tamaño del canvas con las dimensiones originales
     canvas.width = videoWidth;
     canvas.height = videoHeight;
-  
+
     // Dibujar la imagen original en el canvas
     context.drawImage(video, 0, 0, videoWidth, videoHeight);
-  
+
     // Convertir canvas a imagen en formato JPEG
     try {
       const photoUrl = canvas.toDataURL('image/jpeg', 0.9); // Calidad del 90%
-      this.fotografias.push(photoUrl);
-      this.iCont++;
-      this.cdr.detectChanges();
+      this._bitacoraService
+        .subirFotoTemp({
+          fotografia: photoUrl,
+        })
+        .subscribe({
+          next: (response) => {
+            if (response.ok) {
+              this.fotografias.push(response.data);
+              this.iCont++;
+              this.cdr.detectChanges();
+            }
+          },
+        });
     } catch (error) {
-      console.error("Error al generar la imagen:", error);
+      console.error('Error al generar la imagen:', error);
     }
   }
-  
+
   // Método que se ejecuta cuando cambia una propiedad de entrada
   ngOnChanges(changes: SimpleChanges) {
     if (changes['isModalOpen']) {
-        if (this.isModalOpen) {
-            this.startWebcam(); // Iniciar la cámara si el modal se abre
-        } else {
-            this.stopWebcam(); // Detener la cámara si el modal se cierra
-        }
+      if (this.isModalOpen) {
+        this.startWebcam(); // Iniciar la cámara si el modal se abre
+      } else {
+        this.stopWebcam(); // Detener la cámara si el modal se cierra
+      }
     }
   }
 }

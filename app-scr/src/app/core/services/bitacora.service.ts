@@ -4,55 +4,96 @@ import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BitacoraService {
+  constructor(private http: HttpClient) {}
 
-
-  constructor(private http: HttpClient) {   }
-  
   index() {
-    return this.http.get<any>(environment.apiUrl+"bitacora/index");
+    return this.http.get<any>(environment.apiUrl + 'bitacora/index');
   }
 
-  recuperarFolio(json : any) {
-    return this.http.post<any>(environment.apiUrl+"bitacora/recuperarFolio", json);
+  recuperarFolio(json: any) {
+    return this.http.post<any>(
+      environment.apiUrl + 'bitacora/recuperarFolio',
+      json
+    );
   }
 
   getReports(): Observable<any> {
-    return this.http.get<any>(environment.apiUrl+"reportes/getReportesEvidencia");
+    return this.http.get<any>(
+      environment.apiUrl + 'reportes/getReportesEvidencia'
+    );
   }
 
-  enviarFormularioBitacora(bitacora : any): Observable<any> {
-    return this.http.post<any>(environment.apiUrl+"bitacora/guardarBitacora", bitacora);
-  }
-  
-  enviarFormularioActividad(actividad : any) : Observable<any> {
-    return this.http.post<any>( environment.apiUrl+"bitacora/guardarDetBitacora", actividad);
+  enviarFormularioBitacora(bitacora: any): Observable<any> {
+    return this.http.post<any>(
+      environment.apiUrl + 'bitacora/guardarBitacora',
+      bitacora
+    );
   }
 
-  finalizarBitacora(json : any) : Observable<any> {
-    return this.http.post<any>( environment.apiUrl+"bitacora/finalizarBitacora", json);
+  subirFotoTemp(fotografia: any): Observable<any> {
+    return this.http.post<any>(
+      environment.apiUrl + 'bitacora/subirFotoTemp',
+      fotografia
+    );
+  }
+
+  eliminarFotoTemp(fotografia: any): Observable<any> {
+    return this.http.post<any>(
+      environment.apiUrl + 'bitacora/eliminarFotoTemp',
+      fotografia
+    );
+  }
+
+  enviarFormularioActividad(actividad: any): Observable<any> {
+    return this.http.post<any>(
+      environment.apiUrl + 'bitacora/guardarDetBitacora',
+      actividad
+    );
+  }
+
+  finalizarBitacora(json: any): Observable<any> {
+    return this.http.post<any>(
+      environment.apiUrl + 'bitacora/finalizarBitacora',
+      json
+    );
   }
   //Admin
-  indexAdmin(rows : any) {
-    return this.http.get<any>(environment.apiUrl+"bitacora/admin/index/"+rows);
+  indexAdmin(rows: any) {
+    return this.http.get<any>(
+      environment.apiUrl + 'bitacora/admin/index/' + rows
+    );
   }
 
-  obtenerBitacoraPorId(id_bitacora : any) {
-    return this.http.get<any>(environment.apiUrl+"bitacora/admin/obtenerBitacoraPorId/"+id_bitacora+"/1");
+  obtenerBitacoraPorId(id_bitacora: any) {
+    return this.http.get<any>(
+      environment.apiUrl +
+        'bitacora/admin/obtenerBitacoraPorId/' +
+        id_bitacora +
+        '/1'
+    );
   }
 
   poblarFiltros() {
-    return this.http.get<any>(environment.apiUrl+"bitacora/admin/poblarFiltros");
+    return this.http.get<any>(
+      environment.apiUrl + 'bitacora/admin/poblarFiltros'
+    );
   }
 
-  obtenerResultadoBusqueda(json : any) {
-    return this.http.post<any>(environment.apiUrl+"bitacora/admin/obtenerResultadoBusqueda", json);
+  obtenerResultadoBusqueda(json: any) {
+    return this.http.post<any>(
+      environment.apiUrl + 'bitacora/admin/obtenerResultadoBusqueda',
+      json
+    );
   }
 
   //Generales
-  generarReporteBitacora(json : any) {
-    return this.http.post<any>(environment.apiUrl+"bitacora/reporte/generarReporteBitacora", json);
+  generarReporteBitacora(json: any) {
+    return this.http.post<any>(
+      environment.apiUrl + 'bitacora/reporte/generarReporteBitacora',
+      json
+    );
   }
 }
