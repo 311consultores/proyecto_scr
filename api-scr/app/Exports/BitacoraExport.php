@@ -21,17 +21,17 @@ class BitacoraExport {
         $pdf->setFillColor(0,0,0); 
         $pdf->SetTextColor(255,255,255);
         $pdf->Cell(160,5,"www.grupo-scr.com",0,0,"C",1);
-        $pdf->Image(Storage::disk('img')->path('logo-MAI.png'),-5,-1,60,0);
+        $pdf->Image(Storage::disk('img')->path($data->bitacora->path),-5,-1,60,0);
         $pdf->Cell(35,5,"",0,0,"L");
         $pdf->setXY(50,6);
         $pdf->setFillColor(255,255,255); 
         $pdf->SetFont('Arial','B',11);
         $pdf->SetTextColor(255, 51, 0);
-        $pdf->Cell(160,6,"SURVEY, CONSULTANTS AND ENGINEERING SA",0,0,"C",1);
+        $pdf->Cell(160,6,$data->bitacora->titulo,0,0,"C",1);
         $pdf->setXY(50,12);
         $pdf->SetTextColor(44, 36, 32);
         $pdf->SetFont('Arial','B',11);
-        $pdf->Cell(160,6,utf8_decode("INFORME EJECUTIVO"." [".$data->folio_reporte."]"),0,0,"C",1);  
+        $pdf->Cell(160,6,utf8_decode("INFORME EJECUTIVO"." [".$data->bitacora->folio_reporte."]"),0,0,"C",1);  
         $pdf->setXY(0,20);
         $pdf->setFillColor(237, 125, 49);
         $pdf->Cell(210,1,"",0,0,"C",1);  
@@ -39,7 +39,7 @@ class BitacoraExport {
         $pdf->setFillColor(255, 255, 255); 
         $pdf->SetTextColor(73, 77, 85);
         $pdf->SetFont('Arial','',9);
-        $pdf->Cell(200,5,utf8_decode("FECHA: ".Controller::convertDateToText($data->fecha)),0,0,"R",1);
+        $pdf->Cell(200,5,utf8_decode("FECHA: ".Controller::convertDateToText($data->bitacora->fecha)),0,0,"R",1);
         $pdf->setXY(5,30);
         $pdf->SetTextColor(44, 36, 32);
         $pdf->SetFont('Arial','B',12);
@@ -50,11 +50,11 @@ class BitacoraExport {
         $pdf->Cell(70,5,"Responsable",0,0,"L",1);
         $pdf->setXY(5,36);
         $pdf->SetFont('Arial','',11);
-        $pdf->Cell(30,5,utf8_decode($data->folio_reporte),0,0,"L",1);
+        $pdf->Cell(30,5,utf8_decode($data->bitacora->folio_reporte),0,0,"L",1);
         $pdf->setX($pdf->getX()+5);
-        $pdf->Cell(90,5,utf8_decode(self::truncarTexto($pdf,$data->sitio,110)),0,0,"L",1);
+        $pdf->Cell(90,5,utf8_decode(self::truncarTexto($pdf,$data->bitacora->sitio,110)),0,0,"L",1);
         $pdf->setX($pdf->getX()+5);
-        $pdf->Cell(70,5,utf8_decode($data->responsable),0,0,"L",1);
+        $pdf->Cell(70,5,utf8_decode($data->bitacora->responsable),0,0,"L",1);
         $pdf->setXY(5,43);
         $pdf->SetFont('Arial','B',12);
         $pdf->Cell(30,5,"Cliente",0,0,"L",1);
@@ -62,9 +62,9 @@ class BitacoraExport {
         $pdf->Cell(170,5,"Proyecto",0,0,"L",1);
         $pdf->setXY(5,49);
         $pdf->SetFont('Arial','',11);
-        $pdf->Cell(30,5,utf8_decode($data->cliente),0,0,"L",1);
+        $pdf->Cell(30,5,utf8_decode($data->bitacora->cliente),0,0,"L",1);
         $pdf->setX($pdf->getX()+5);
-        $pdf->Cell(170,5,utf8_decode(self::truncarTexto($pdf,$data->proyecto,200)),0,0,"L",1);
+        $pdf->Cell(170,5,utf8_decode(self::truncarTexto($pdf,$data->bitacora->proyecto,200)),0,0,"L",1);
         #endregion
         #region [Actividades]
         $pdf->setXY(5,$pdf->getY()+10);
@@ -106,10 +106,10 @@ class BitacoraExport {
                 $x = $pdf->getX();
                 $y= $pdf->getY();
                 foreach($actividad->fotografias as $index => $foto) {
-                    $pdf->Image(Storage::disk('reportes')->path($foto->path),$x,$y,60,65);
+                    $pdf->Image(Storage::disk('reportes')->path($foto->url_path),$x,$y,60,65);
                     $index++;  
                     $x += 70;
-                    if($index == count($actividad->fotografias) && (count($actividad->fotografias) % 2 == 0 || in_array($index,[1]))) {
+                    if($index == count($actividad->fotografias) && (count($actividad->fotografias) % 2 == 0 || in_array($index,[1,3,5,7,9,11,13,15,17]))) {
                         $y += 68;
                     }else {
                         if(in_array($index,[3,6,9,12,15,18,21,24,27,30])) {

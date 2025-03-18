@@ -66,7 +66,7 @@ return [
         ],
         'reportes' => [
             'driver' => 'local',
-            'root' => storage_path('img_reportes'),
+            'root' => base_path('public/storage/img_reportes'),
             'url' => env('APP_URL').'/storage/img_reportes',
             'visibility' => 'public',
         ],

@@ -28,6 +28,8 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->get('index','BitacoraController@index');
         $router->post('recuperarFolio','BitacoraController@recuperarFolio');
         $router->post('guardarBitacora','BitacoraController@guardarBitacora');
+        $router->post('subirFotoTemp', 'BitacoraController@subirFotoTemp');
+        $router->post('eliminarFotoTemp', 'BitacoraController@eliminarFotoTemp');
         $router->post('guardarDetBitacora', 'BitacoraController@guardarDetBitacora');
         $router->get('exportarPDF/{id}', 'BitacoraController@exportPDF');
         $router->post('finalizarBitacora','BitacoraController@finalizarBitacora');
