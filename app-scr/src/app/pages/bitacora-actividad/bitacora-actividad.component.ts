@@ -281,13 +281,30 @@ export class BitacoraActividadComponent {
       for (let archivo of archivos) {
         const reader = new FileReader();
         reader.onload = (e: any) => {
-          // Crear imagen desde el archivo
           const img = new Image();
           img.src = e.target.result;
 
           img.onload = () => {
-            // Crear un canvas para convertir la imagen
+            // Configuración óptima para PDF
+            const maxWidth = 800; // Ancho máximo recomendado
+            const maxHeight = 600; // Alto máximo recomendado
+            let width = img.width;
+            let height = img.height;
+
+            // Redimensionar manteniendo aspect ratio
+            if (width > maxWidth) {
+              height = (maxWidth / width) * height;
+              width = maxWidth;
+            }
+            if (height > maxHeight) {
+              width = (maxHeight / height) * width;
+              height = maxHeight;
+            }
+
             const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+
             const context = canvas.getContext('2d');
 
             if (!context) {
@@ -297,15 +314,10 @@ export class BitacoraActividadComponent {
               return;
             }
 
-            // Establecer tamaño del canvas igual a la imagen original
-            canvas.width = img.width;
-            canvas.height = img.height;
+            context.drawImage(img, 0, 0, width, height);
 
-            // Dibujar la imagen en el canvas
-            context.drawImage(img, 0, 0, img.width, img.height);
-
-            // Convertir a JPEG (sin interlazado)
-            const fotoConvertida = canvas.toDataURL('image/jpeg', 0.9); // 90% calidad
+            // Calidad reducida a 75% (óptimo para PDF)
+            const fotoConvertida = canvas.toDataURL('image/jpeg', 0.75);
 
             this.isLoading = true;
             this._bitacoraService
