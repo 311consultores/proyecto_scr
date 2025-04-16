@@ -202,6 +202,7 @@ export class BitacoraActividadComponent {
               allowEnterKey: false, // Evita que se active el botón con Enter
             }).then((result) => {
               if (result.isConfirmed) {
+                this.isLoading = true;
                 this._bitacoraService
                   .generarReporteBitacora({
                     id_bitacora: this.cache.bitacora.id_bitacora,
@@ -229,6 +230,7 @@ export class BitacoraActividadComponent {
                         localStorage.removeItem('data_cache');
                         location.reload();
                       } else {
+                        this.isLoading = false;
                         Swal.fire(
                           'Ha ocurrido un problema',
                           'No se ha podido generar el documento, intentelo de nuevo',
