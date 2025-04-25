@@ -3,6 +3,7 @@ import { authGuard } from './core/guard/login.guard';
 import { unloggedGuard } from './core/guard/unlogin.guard';
 import { LoginComponent } from './auth/login/login.component';
 import { BitacoraActividadComponent } from './pages/bitacora-actividad/bitacora-actividad.component';
+import { BitacoraActividadV2Component } from './pages/bitacora-actividad-v2/bitacora-actividad-v2.component';
 
 export const routes: Routes = [
     {
@@ -13,6 +14,10 @@ export const routes: Routes = [
     {
         path: 'bitacora',
         component: BitacoraActividadComponent
+    },
+    {
+        path: 'bitacora-v2',
+        component: BitacoraActividadV2Component
     },
     {
         path: 'panel',

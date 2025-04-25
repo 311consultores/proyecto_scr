@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 import { BitacoraService } from '../../core/services/bitacora.service';
@@ -19,11 +18,12 @@ import {
 import Swal from 'sweetalert2';
 import * as LZString from 'lz-string';
 import { LoadingModalComponent } from '../../shared/components/loading-modal/loading-modal.component';
+import { FormsModule, NgForm } from '@angular/forms';
 @Component({
   selector: 'app-bitacora-actividad',
   imports: [
-    FormsModule,
     CommonModule,
+    FormsModule,
     AlertaComponent,
     WebcamComponent,
     GaleriaComponent,

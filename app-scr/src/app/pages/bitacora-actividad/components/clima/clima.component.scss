@@ -1,0 +1,133 @@
+@use '@angular/material' as mat;
+
+/* Tema personalizado */
+$primary: mat.m2-define-palette(mat.$m2-blue-palette, A400, A100, A700);
+$accent: mat.m2-define-palette(mat.$m2-teal-palette);
+$warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+$theme: mat.m2-define-light-theme((
+  color: (
+    primary: $primary,
+    accent: $accent,
+    warn: $warn
+  ),
+  density: -1
+));
+
+@include mat.all-component-themes($theme);
+
+.text-primary {
+    color: var(--negro) !important;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+  padding: 16px 0;
+}
+
+mat-dialog-actions {
+  padding: 16px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+mat-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* Ajustes para la lista */
+.list-clima {
+  margin-top: 10px;
+  padding: 0;
+  max-height: 250px;
+  overflow-y: auto;
+
+  .list-item-clima {
+    margin-top: 5px;
+    gap: 10px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    .text-list {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        
+        .title, .line {
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 20px;
+            color: rgba(0, 0, 0, 0.87);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            display: block; // importante para que funcione el ellipsis
+            width: 100%; // o max-width: 100%; o asegúrate que el contenedor .text-list tenga un ancho definido
+        }
+
+        .title {
+            font-size: 16px;
+        }
+
+        .line {
+            font-size: 14px !important;           
+            color: rgba(0, 0, 0, 0.54) !important;
+        }
+    }
+
+    .sun {
+        width: 32px !important;
+        height: auto !important;
+        font-size: 32px !important;
+        color: #FFC107 !important;
+    }
+
+    mat-icon {
+        width: 26px;
+        height: auto;
+        font-size: 26px;
+    }
+  }
+}
+
+.drag-handle {
+  cursor: move;
+  margin-right: 8px;
+}
+
+.cdk-drag-preview {
+  opacity: 0.5;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+              0 8px 10px 1px rgba(0, 0, 0, 0.14),
+              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.drag-handle {
+  cursor: move;
+  margin-right: 8px;
+}
+
+@media (max-width: 576px) {
+  .text-list {
+    .title {
+      font-size: 14px;
+    }
+
+    .line {
+      font-size: 12px;
+    }
+  }
+}

@@ -1,0 +1,166 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <h2 class="h4 text-primary py-1 my-0">Listado de climas</h2>
+        </div>
+        <div class="col d-flex justify-content-end">
+            <button mat-raised-button color="accent" (click)="openClimaModal($event)">
+                <mat-icon>playlist_add</mat-icon> Agregar
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            @if((this.climaElement.get('climas')?.value || []).length > 0) {
+                <div class="list-clima">
+                    <div cdkDropList (cdkDropListDropped)="drop($event)">
+                        @for (clima of this.climaElement.get('climas')?.value; track $index) {
+                            <div cdkDrag class="list-item-clima border">
+                                <div cdkDragHandle class="text-list drag-handle" (click)="openClimaModal($event, clima, $index)">
+                                    <div class="title text-truncate">
+                                        <strong>T:</strong> {{clima.temp}} {{unidades.temp}};<strong>T.A:</strong> {{clima.temp_aparente}} {{unidades.temp_aparente}};
+                                        <strong>V:</strong> {{clima.viento}} {{unidades.viento}};<strong>H:</strong> {{clima.humedad}} {{unidades.humedad}};
+                                        <strong>P.R:</strong> {{clima.punto_rocio}} {{unidades.punto_rocio}};<strong>P.A:</strong> {{clima.presion}} {{unidades.presion}}
+                                    </div>
+                                    <div class="line"><strong>Hora:</strong> {{clima.hora}}; <strong *ngIf="clima.desc != ''">Desc:</strong> {{clima.desc != '' ? clima.desc : ''}}</div>
+                                </div>
+                                <button mat-icon-button 
+                                        color="warn"
+                                        (click)="deleteClima($index)">
+                                    <mat-icon>playlist_remove</mat-icon>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <mat-list>
+                    <mat-list-item class="border">
+                        <div matListItemTitle>Aún no se han agregado climas</div>
+                    </mat-list-item>
+                </mat-list>
+            }
+        </div>
+        <div class="col-12">
+            <mat-error *ngIf="climaElement.get('climas')?.hasError('minLengthArray')" class="text-end">
+                Este elemento no puede ser vacio
+            </mat-error>
+        </div>
+    </div>
+</div>
+<ng-template #modal>
+    <h2 mat-dialog-title class="d-flex align-items-center gap-2 pt-3 mb-0">
+        <mat-icon>cloud</mat-icon>
+        Registro Climático
+    </h2>
+    <mat-dialog-content class="py-0 mt-0">
+        <form [formGroup]="climaForm" (ngSubmit)="onSubmit()" class="row px-2 pt-4">
+            <div class="col-sm-12 col-md-2">
+                <!-- Hora -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Hora</mat-label>
+                    <input matInput type="time" formControlName="hora" required>
+                </mat-form-field>
+            </div>
+            <div class="col-sm-12 col-md-5">
+                <!-- Temperatura -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Temperatura ({{unidades.temp}})</mat-label>
+                    <input matInput type="number" formControlName="temp" step="0.1">
+                    <mat-icon matSuffix>thermostat</mat-icon>
+                    <mat-error class="truncate" *ngIf="climaForm.get('temp')?.hasError('required')">
+                        Campo requerido
+                    </mat-error>
+                    <mat-error *ngIf="climaForm.get('temp')?.hasError('min') || climaForm.get('temp')?.hasError('max')">
+                        Debe estar entre -50 y 60 °C
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-sm-12 col-md-5">
+                <!-- Temperatura Aparente -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label class="truncate">Temp. Aparente ({{unidades.temp_aparente}})</mat-label>
+                    <input matInput type="number" formControlName="temp_aparente" step="0.1">
+                    <mat-icon matSuffix>device_thermostat</mat-icon>
+                    <mat-error *ngIf="climaForm.get('temp_aparente')?.hasError('min') || climaForm.get('temp_aparente')?.hasError('max')">
+                        Debe estar entre -50 y 60 °C
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-sm-12 col-md-4">
+                <!-- Viento -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label class="text-truncate">Viento ({{unidades.viento}})</mat-label>
+                    <input matInput type="number" formControlName="viento" step="0.1">
+                    <mat-icon matSuffix>air</mat-icon>
+                    <mat-error *ngIf="climaForm.get('viento')?.hasError('required')">
+                        Campo requerido
+                    </mat-error>
+                    <mat-error *ngIf="climaForm.get('viento')?.hasError('min')">
+                    No puede ser negativo
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-sm-12 col-md-4">
+                <!-- Humedad -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Humedad ({{unidades.humedad}})</mat-label>
+                    <input matInput type="number" formControlName="humedad" min="0" max="100">
+                    <mat-icon matSuffix>water_drop</mat-icon>
+                    <mat-error *ngIf="climaForm.get('humedad')?.hasError('required')">
+                        Campo requerido
+                    </mat-error>
+                    <mat-error *ngIf="climaForm.get('humedad')?.hasError('min') || climaForm.get('humedad')?.hasError('max')">
+                        Debe estar entre 0 y 100%
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-sm-12 col-md-4">
+                <!-- Punto de Rocío -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Punto de rocío ({{unidades.punto_rocio}})</mat-label>
+                    <input matInput type="number" formControlName="punto_rocio" step="0.1">
+                    <mat-icon matSuffix>dew_point</mat-icon>
+                    <mat-error *ngIf="climaForm.get('punto_rocio')?.hasError('min') || climaForm.get('punto_rocio')?.hasError('max')">
+                        Debe estar entre -50 y 60 °C
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-sm-12 col-md-4">
+                <!-- Presión -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Presión ({{unidades.presion}})</mat-label>
+                    <input matInput type="number" formControlName="presion" step="0.1">
+                    <mat-icon matSuffix>speed</mat-icon>
+                    <mat-error *ngIf="climaForm.get('presion')?.hasError('required')">
+                        Campo requerido
+                    </mat-error>
+                    <mat-error *ngIf="climaForm.get('presion')?.hasError('min') || climaForm.get('presion')?.hasError('max')">
+                        Debe estar entre 800 y 1100 hPa
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-md-8 col-sm-12">
+                <!-- Descripción -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Descripción</mat-label>
+                    <input matInput formControlName="desc" rows="3">
+                    <mat-icon matSuffix>description</mat-icon>
+                </mat-form-field>
+            </div>                
+            <mat-dialog-actions class="col-12 mt-2" align="end">
+                <button mat-raised-button  mat-dialog-close color="warn">
+                    <mat-icon>close</mat-icon>
+                    Cancelar
+                </button>
+                <button mat-raised-button 
+                        color="primary" 
+                        type="submit"
+                        [disabled]="climaForm.invalid">
+                    <mat-icon>save</mat-icon>
+                    Guardar
+                </button>
+            </mat-dialog-actions>
+        </form>
+    </mat-dialog-content>
+</ng-template>

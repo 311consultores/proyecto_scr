@@ -1,0 +1,366 @@
+/* Importaciones */
+@use '@angular/material' as mat;
+
+/* Tema personalizado */
+$primary: mat.m2-define-palette(mat.$m2-blue-palette, A400, A100, A700);
+$accent: mat.m2-define-palette(mat.$m2-teal-palette);
+$warn: mat.m2-define-palette(mat.$m2-red-palette);
+$primary-aunt: #F66605;
+$secondary-aunt: #F63F1E;
+$black: #2D2829;
+
+$theme: mat.m2-define-light-theme((
+  color: (
+    primary: $primary,
+    accent: $accent,
+    warn: $warn
+  ),
+  density: -1
+));
+
+@include mat.all-component-themes($theme);
+
+/* Estilos generales para el contenedor */
+.container-fluid.px-0 {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Estilos para la tarjeta principal */
+mat-card.shadow {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Estilos para el contenido de la tarjeta */
+mat-card-content.p-3 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+mat-card-header {
+    padding: 5px !important;
+}
+/* Estilos para el stepper */
+mat-stepper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: none;
+}
+
+::ng-deep .mat-horizontal-stepper-wrapper {
+  height: 100% !important;
+}
+
+::ng-deep .mat-horizontal-content-container {
+  height: 100% !important;
+}
+
+::ng-deep .mat-horizontal-stepper-content-current {
+  height: 100% !important;
+}
+
+/* Contenedor de cada paso */
+.mat-step-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Estructura de cada paso */
+.step-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Header del paso */
+.step-header {
+  flex: 0 0 auto;
+  padding-bottom: 16px;
+}
+
+/* Body del paso con scroll */
+.step-body {
+  max-width: 100%;
+  flex: 1 1 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 0; /* Importante para flexbox */
+}
+
+/* Footer del paso */
+.step-footer {
+  flex: 0 0 auto;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Ajustes para los formularios */
+.step-body form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0px 0px 0px;
+}
+
+/* Ajustes para el contenido del formulario */
+.form-content {
+  flex: 1;
+}
+
+/* Estilos específicos para el paso de contenido */
+.content-items {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+/* Ajustes para los botones de navegación */
+.mat-stepper-actions {
+  margin-top: auto;
+}
+
+/* Estilos generales */
+.mat-mdc-card {
+
+  .mat-mdc-card-header {
+    padding: 1rem;
+    
+    &.bg-primary-aunt {
+        background-color: $black !important;
+        .mat-mdc-card-title {
+            color: white;
+            margin-bottom: 0;
+        }
+    }
+
+    &.bg-light {
+      background-color: #EEF2F5;
+    }
+  }
+}
+
+.text-primary {
+    color: $black !important;
+}
+
+::ng-deep {
+    .mat-mdc-text-field-wrapper {
+        height: 50px !important;
+
+        &.mdc-text-field--outlined {
+            .mat-mdc-form-field-infix {
+                padding-top: 15px !important;
+            }
+        }
+    }
+}
+
+::ng-deep .mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field .mdc-notched-outline__notch {
+    height: 100%;
+    border-left: none !important;
+}
+
+::ng-deep .mat-form-field-disabled .mdc-notched-outline {
+    background-color: #f5f5f5;
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+        border-color: #e0e0e0 !important;
+    }
+}
+
+::ng-deep .mat-mdc-form-field-disabled .mat-mdc-form-field-label {
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+
+::ng-deep .mat-mdc-form-field-disabled .mat-mdc-input-element {
+    color: rgba(0, 0, 0, 0.8) !important;
+    -webkit-text-fill-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Para appearance="fill" */
+::ng-deep .mat-mdc-form-field-disabled.mat-mdc-form-field-appearance-fill .mdc-text-field {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+::ng-depp .mat-step-icon-content {
+    position: absolute !important;
+    top: 53% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    display: flex !important;
+}
+
+::ng-deep .mat-step-icon-selected {
+    background-color: $secondary-aunt !important;
+}
+
+/* Stepper */
+.mat-mdc-stepper-horizontal {
+  background-color: transparent;
+}
+
+/* Items de contenido */
+.content-items {
+  .mat-mdc-card {
+    margin-bottom: 1rem;
+    border-left: 4px solid $secondary-aunt;
+  }
+}
+
+/* Snackbars */
+::ng-deep .success-snackbar {
+  background-color: mat.m2-get-color-from-palette($accent);
+  color: white;
+}
+
+::ng-deep .error-snackbar {
+  background-color: mat.m2-get-color-from-palette($warn);
+  color: white;
+}
+
+.drag-handle {
+  cursor: move;
+  margin-right: 8px;
+}
+
+.cdk-drag-preview {
+  opacity: 0.5;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+              0 8px 10px 1px rgba(0, 0, 0, 0.14),
+              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.drag-handle {
+  cursor: move;
+  margin-right: 8px;
+}
+
+mat-card-header {
+  cursor: pointer;
+}
+
+/* Para evitar que el drag and drop active el collapse */
+.cdk-drag-handle {
+  cursor: move;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mat-mdc-stepper-horizontal {
+    flex-direction: column;
+  }
+
+  .mat-mdc-form-field {
+    margin-bottom: 0.75rem;
+  }
+}
+
+.logo-carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2rem 0;
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  
+    .nav-arrow {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      z-index: 2;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  
+      mat-icon {
+        font-size: 2rem;
+        width: 30px;
+        height: 30px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s ease;
+      }
+    }
+  
+    .logo-carousel-wrapper {
+      width: calc(100% - 100px); /* Resta el espacio de las flechas */
+      overflow: hidden;
+      margin: 0 10px;
+    }
+  
+    .logo-carousel-track {
+      display: flex;
+      transition: transform 0.5s ease;
+      width: 100%;
+    }
+  
+    .logo-item {
+      flex: 0 0 100%;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+      box-sizing: border-box;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0.6;
+  
+      &:hover {
+        opacity: 0.9;
+      }
+  
+      &.active {
+        opacity: 1;
+        
+        .logo-title {
+          color: mat.m2-get-color-from-palette($primary);
+          font-weight: 500;
+        }
+      }
+    }
+  
+    .logo-image {
+      width: 200px;
+      height: auto;
+      object-fit: contain;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+    }
+  }
+  
+/* Responsive */
+@media (max-width: 768px) {
+    .logo-carousel-container {
+        .logo-image {
+        width: 200px;
+        height: auto;
+        }
+    }
+}

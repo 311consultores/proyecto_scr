@@ -1,0 +1,317 @@
+<div class="container-fluid px-0" style="height: 100vh;">
+    <mat-card class="shadow" style="height: 100vh;">
+      <mat-card-header class="bg-primary-aunt text-white py-2">
+        <mat-card-title>Nueva Bitácora</mat-card-title>
+      </mat-card-header>
+  
+      <mat-card-content class="p-3">
+        <mat-stepper linear #stepper>
+          <!-- Paso 1: Encabezado -->
+          <mat-step [stepControl]="encabezadoGroup" label="Encabezado">
+            <div class="step-container">
+              <!-- Header -->
+              <div class="step-header">
+                <div class="row">
+                  <div class="col-sm-12 col-md-6">
+                    <h2 class="h4 text-primary py-1 my-0">Información General</h2>
+                    <p class="text-muted">Complete los datos básicos de la bitácora</p>
+                  </div>
+                  <div class="col-sm-12 col-md-6">
+                    <div class="logo-carousel-container">
+                      <button class="nav-arrow" (click)="prevLogo()">
+                        <mat-icon>chevron_left</mat-icon>
+                      </button>
+                    
+                      <div class="logo-carousel-wrapper">
+                        <div class="logo-carousel-track" [style.transform]="'translateX(' + offset + '%)'">
+                          <div *ngFor="let option of tipoBitacoraOptions; let i = index" 
+                               class="logo-item"
+                               [class.active]="i === selectedIndex">
+                            <img [src]="getLogoPath(option.value)" [alt]="option.label" class="logo-image">
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <button class="nav-arrow" (click)="nextLogo()">
+                        <mat-icon>chevron_right</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                  <input type="hidden" [formControl]="getEncabezadoControl('tipo_bitacora')">
+                </div>
+              </div>
+          
+              <!-- Body con scroll -->
+              <div class="step-body">
+                <form [formGroup]="bitacoraForm">
+                  <!-- Fila 1 -->
+                    <div class="row g-1 mb-0">
+                        <div class="col-md-3 col-sm-12 col-lg-2">
+                            <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Folio Reporte</mat-label>
+                            <input matInput [formControl]="getEncabezadoControl('folio_reporte')" readonly>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-4">
+                            <mat-form-field appearance="outline" class="w-100 mat-sm">
+                                <mat-label>Cliente</mat-label>
+                                <mat-select [formControl]="getEncabezadoControl('cliente_id')" (selectionChange)="getFolio($event)" tabIndex="1" [autofocus]="true">
+                                <mat-option *ngFor="let option of catalogos?.clientes" [value]="option.cliente">
+                                    {{option.cliente}}
+                                </mat-option>
+                                </mat-select>
+                                <mat-error>Campo requerido</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-5">
+                            <mat-form-field appearance="outline" class="w-100 mat-sm">
+                                <mat-label>Sitios</mat-label>
+                                <mat-select [formControl]="getEncabezadoControl('sitio_id')" (selectionChange)="getFolio($event)" tabIndex="2">
+                                <mat-option *ngFor="let option of catalogos?.sitios" [value]="option.sitio">
+                                    {{option.sitio}}
+                                </mat-option>
+                                </mat-select>
+                                <mat-error>Campo requerido</mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+    
+                    <!-- Fila 2 -->
+                    <div class="row g-1 mb-0">
+                        <div class="col-md-8 col-sm-12">
+                            <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Titulo</mat-label>
+                            <input matInput [formControl]="getEncabezadoControl('titulo')" placeholder="Ej: REPORTE DIARIO DE TRABAJO" tabIndex="3" style="text-transform: uppercase;">
+                            <mat-error>Campo requerido</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Fecha</mat-label>
+                            <input matInput [matDatepicker]="picker" [formControl]="getEncabezadoControl('fecha')">
+                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                            <mat-error>Campo requerido</mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+    
+                    <!-- Fila 3 -->
+                    <div class="row g-1 mb-0">
+                        <div class="col-md-6 col-sm-12">
+                            <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Proyecto</mat-label>
+                            <input matInput [formControl]="getEncabezadoControl('proyecto')" placeholder="Ej. MAN POWER FOR GENERAL STRUCTURAL MAINTENANCE QC " style="text-transform: uppercase;">
+                            <mat-error>Campo requerido</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Responsable</mat-label>
+                            <input matInput [formControl]="getEncabezadoControl('responsable')" placeholder="Ej: Supervisor Nombre(s) Apellidos" style="text-transform: uppercase;">
+                            <mat-error>Campo requerido</mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </form>
+              </div>
+          
+              <!-- Footer -->
+              <div class="step-footer">
+                <div class="row">
+                  <div class="col-12 d-flex justify-content-end">
+                    <button mat-raised-button color="primary" matStepperNext class="ms-2">
+                      Siguiente: Contenido
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-step>
+  
+          <!-- Paso 2: Contenido -->
+          <mat-step [stepControl]="contenidoGroup" label="Contenido">
+            <div class="step-container">
+              <!-- Header -->
+              <div class="step-header">
+                <div class="row">
+                  <div class="col-12">
+                    <h2 class="h4 text-primary py-1 my-0">Contenido de la Bitácora</h2>
+                    <p class="text-muted">Agregue los diferentes elementos que conforman la bitácora</p>
+                  </div>
+                </div>
+              </div>
+          
+              <!-- Body con scroll -->
+              <div class="step-body">
+                <div class="row g-1 mb-4">
+                    <div class="col-6 col-md-3">
+                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addClimaItem()">
+                          <mat-icon>wb_sunny</mat-icon> Clima
+                        </button>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addHorarioItem()">
+                          <mat-icon>schedule</mat-icon> Horario
+                        </button>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addConsumoItem()">
+                          <mat-icon>local_shipping</mat-icon> Consumo
+                        </button>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addActividadItem()">
+                          <mat-icon>build</mat-icon> Actividad
+                        </button>
+                    </div>
+                </div>
+          
+                <div class="row">
+                  <div class="col-12">
+                    <div class="content-items">
+                      <!-- Contenido dinámico... -->
+                      <div cdkDropList (cdkDropListDropped)="drop($event)">
+                        <ng-container *ngFor="let item of this.bitacoraForm.get('contenido')?.value || []; let i = index">
+                            <mat-card cdkDrag class="mb-3">
+                                <mat-card-header class="bg-light d-flex justify-content-between align-items-center" (click)="toggleCollapse(i)">
+                                    <mat-card-title class="d-flex align-items-center">
+                                        <mat-icon cdkDragHandle class="drag-handle">drag_indicator</mat-icon>
+                                        {{ item.tipo | bitacoraType | titlecase }}
+                                        <mat-icon>{{ isCollapsed(i) ? 'expand_more' : 'expand_less' }}</mat-icon>
+                                    </mat-card-title>
+                                    <button mat-icon-button (click)="removeItem(i)" matTooltip="Eliminar">
+                                        <mat-icon color="warn">delete</mat-icon>
+                                    </button>
+                                </mat-card-header>
+                                <div [@collapse]="isCollapsed(i) ? 'collapsed' : 'expanded'">
+                                    <mat-card-content class="p-3">
+                                        <ng-container [ngSwitch]="item.tipo">
+                                        
+                                        <!-- Clima -->
+                                        <div *ngSwitchCase="1" class="row g-1 py-3 px-2">
+                                            <app-clima 
+                                                [_climaElement]="item" 
+                                                (getClimaElement)="updateValueContenido(i, $event)"
+                                                (validityChanged)="setValidate($event)">
+                                            </app-clima>
+                                        </div>
+                                        
+                                        <!-- Horario -->
+                                        <div *ngSwitchCase="2" class="row g-3">
+                                            <div class="col-md-4">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Categoría</mat-label>
+                                                    <input matInput formControlName="categoria">
+                                                </mat-form-field>
+                                            </div>
+                                            <!-- Más campos de horario... -->
+                                        </div>
+                                        
+                                        <!-- Otros tipos de items... -->
+                                        
+                                        </ng-container>
+                                    </mat-card-content>
+                                </div>
+                            </mat-card>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          
+              <!-- Footer -->
+              <div class="step-footer">
+                <div class="row">
+                  <div class="col-12 d-flex justify-content-between">
+                    <button mat-stroked-button matStepperPrevious>
+                      <mat-icon>arrow_back</mat-icon> Anterior
+                    </button>
+                    <button mat-raised-button color="primary" matStepperNext [disabled]="!bitacoraForm.valid || !bContenido">
+                      Siguiente: Revisión <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-step>
+  
+          <!-- Paso 3: Revisión -->
+          <mat-step label="Revisión">
+            <div class="step-container">
+              <!-- Header -->
+              <div class="step-header">
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <h2 class="h4 text-primary">Revisión Final</h2>
+                    <p class="text-muted">Verifique que toda la información sea correcta antes de enviar</p>
+                  </div>
+                </div>
+              </div>
+          
+              <!-- Body con scroll -->
+              <div class="step-body">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <mat-card>
+                          <mat-card-header class="bg-light">
+                            <mat-card-title>Resumen de Encabezado</mat-card-title>
+                          </mat-card-header>
+                          <mat-card-content class="p-3">
+                            <p><strong>Tipo:</strong> {{ bitacoraForm.get('encabezado.tipo_bitacora')?.value | bitacoraType }}</p>
+                            <p><strong>Fecha:</strong> {{ bitacoraForm.get('encabezado.fecha')?.value | date }}</p>
+                            <p><strong>Título:</strong> {{ bitacoraForm.get('encabezado.titulo')?.value }}</p>
+                            <p><strong>Proyecto:</strong> {{ bitacoraForm.get('encabezado.proyecto')?.value }}</p>
+                          </mat-card-content>
+                        </mat-card>
+                      </div>
+                      
+                      <div class="col-md-6">
+                        <mat-card>
+                          <mat-card-header class="bg-light">
+                            <mat-card-title>Resumen de Contenido</mat-card-title>
+                          </mat-card-header>
+                          <mat-card-content class="p-3">
+                            <p><strong>Total elementos:</strong> {{ this.bitacoraForm.get('contenido')?.value.length }}</p>
+                            <div *ngIf="this.bitacoraForm.get('contenido')?.value.length > 0">
+                              <strong>Detalle:</strong>
+                              <ul class="list-unstyled">
+                                <li *ngFor="let item of this.bitacoraForm.get('contenido')?.value">
+                                  {{ item.tipo| bitacoraType }}
+                                </li>
+                              </ul>
+                            </div>
+                          </mat-card-content>
+                        </mat-card>
+                    </div>
+                </div>
+          
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <mat-checkbox [formControl]="getEncabezadoControl('bFinalizado')" class="me-2">
+                      Confirmo que la información es correcta
+                    </mat-checkbox>
+                  </div>
+                </div>
+              </div>
+          
+              <!-- Footer -->
+              <div class="step-footer">
+                <div class="row">
+                  <div class="col-12 d-flex justify-content-between">
+                    <button mat-stroked-button matStepperPrevious>
+                      <mat-icon>arrow_back</mat-icon> Anterior
+                    </button>
+                    <button mat-raised-button color="primary" (click)="onSubmit()">
+                      <mat-icon>save</mat-icon> Guardar Bitácora
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-step>
+        </mat-stepper>
+      </mat-card-content>
+    </mat-card>
+  </div>
