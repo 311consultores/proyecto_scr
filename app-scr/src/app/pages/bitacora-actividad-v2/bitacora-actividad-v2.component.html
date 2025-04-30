@@ -146,22 +146,22 @@
               <div class="step-body">
                 <div class="row g-1 mb-4">
                     <div class="col-6 col-md-3">
-                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addClimaItem()">
+                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addItem(1)">
                           <mat-icon>wb_sunny</mat-icon> Clima
                         </button>
                       </div>
                       <div class="col-6 col-md-3">
-                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addHorarioItem()">
+                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addItem(2)">
                           <mat-icon>schedule</mat-icon> Horario
                         </button>
                       </div>
                       <div class="col-6 col-md-3">
-                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addConsumoItem()">
+                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addItem(3)">
                           <mat-icon>local_shipping</mat-icon> Consumo
                         </button>
                       </div>
                       <div class="col-6 col-md-3">
-                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addActividadItem()">
+                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addItem(4)">
                           <mat-icon>build</mat-icon> Actividad
                         </button>
                     </div>
@@ -187,29 +187,31 @@
                                 <div [@collapse]="isCollapsed(i) ? 'collapsed' : 'expanded'">
                                     <mat-card-content class="p-3">
                                         <ng-container [ngSwitch]="item.tipo">
-                                        
-                                        <!-- Clima -->
-                                        <div *ngSwitchCase="1" class="row g-1 py-3 px-2">
-                                            <app-clima 
+                                          <!-- Clima -->
+                                          <div *ngSwitchCase="1" class="row g-1 py-3 px-2">
+                                              <app-clima 
                                                 [_climaElement]="item" 
                                                 (getClimaElement)="updateValueContenido(i, $event)"
-                                                (validityChanged)="setValidate($event)">
-                                            </app-clima>
-                                        </div>
-                                        
-                                        <!-- Horario -->
-                                        <div *ngSwitchCase="2" class="row g-3">
-                                            <div class="col-md-4">
-                                                <mat-form-field appearance="outline" class="w-100">
-                                                    <mat-label>Categoría</mat-label>
-                                                    <input matInput formControlName="categoria">
-                                                </mat-form-field>
-                                            </div>
-                                            <!-- Más campos de horario... -->
-                                        </div>
-                                        
-                                        <!-- Otros tipos de items... -->
-                                        
+                                                (validityChanged)="setValidate($event)" />
+                                          </div>
+                                          
+                                          <!-- Horario -->
+                                          <div *ngSwitchCase="2" class="row g-1  py-3 px-2">
+                                              <app-horario 
+                                                [_horarioElement]="item"
+                                                (getHorarioElement)="updateValueContenido(i, $event)"
+                                                (validityChanged)="setValidate($event)" />
+                                          </div>
+                                          
+                                          <!-- Consumo -->
+                                          <div *ngSwitchCase="3" class="row g-1  py-3 px-2">
+                                            <app-consumo />
+                                          </div>
+                                          
+                                          <!-- Actividad -->
+                                          <div *ngSwitchCase="4" class="row g-1  py-3 px-2">
+                                            <app-actividad />
+                                          </div>
                                         </ng-container>
                                     </mat-card-content>
                                 </div>
@@ -228,7 +230,7 @@
                     <button mat-stroked-button matStepperPrevious>
                       <mat-icon>arrow_back</mat-icon> Anterior
                     </button>
-                    <button mat-raised-button color="primary" matStepperNext [disabled]="!bitacoraForm.valid || !bContenido">
+                    <button mat-raised-button color="primary" matStepperNext [disabled]="isNextDisabled">
                       Siguiente: Revisión <mat-icon>arrow_forward</mat-icon>
                     </button>
                   </div>

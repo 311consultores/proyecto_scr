@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, FormsModule, MinLengthValidator, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import {MatListModule} from '@angular/material/list';
-import { NgIf } from '@angular/common';
+import { MatListModule } from '@angular/material/list';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NgIf } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 interface Clima {
@@ -76,6 +76,8 @@ export class ClimaComponent {
     this.climaElement.valueChanges.subscribe(() => {
       if(this.climaElement.valid) {
         this.validityChanged.emit(true);
+      } else {
+        this.validityChanged.emit(false);
       }
     });
   }
@@ -144,7 +146,7 @@ export class ClimaComponent {
     newArray.splice(index, 1);
     this.climaElement.get('climas')?.setValue(newArray);
     this.getClimaElement.emit(this.climaElement.value);
-    this.showSnackbar('Registro eliminado correctamente');
+    this.showSnackbar('Item eliminado correctamente');
   }
 
   private showSnackbar(message: string): void {

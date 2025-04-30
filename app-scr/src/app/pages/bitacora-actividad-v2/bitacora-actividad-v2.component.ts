@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,8 +28,11 @@ import { BitacoraTypePipe } from '../../core/pipes/bitacora.pipe';
 import { BitacoraService } from '../../core/services/bitacora.service';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { ClimaComponent } from '../bitacora-actividad/components/clima/clima.component';
 import { BitacoraModel } from '../../core/models/biracora.model';
+import { ClimaComponent } from './components/clima/clima.component';
+import { HorarioComponent } from './components/horario/horario.component';
+import { ConsumoComponent } from './components/consumo/consumo.component';
+import { ActividadComponent } from './components/actividad/actividad.component';
 
 @Component({
   selector: 'app-bitacora-actividad-v2',
@@ -51,7 +54,10 @@ import { BitacoraModel } from '../../core/models/biracora.model';
     BitacoraTypePipe,
     DragDropModule,
     ClimaComponent,
-  ],
+    HorarioComponent,
+    ConsumoComponent,
+    ActividadComponent
+],
   templateUrl: './bitacora-actividad-v2.component.html',
   styleUrl: './bitacora-actividad-v2.component.scss',
   animations: [
@@ -83,12 +89,13 @@ export class BitacoraActividadV2Component implements OnInit {
   public showPreview = false;
   public selectedIndex = 0;
   public offset = 0;
-  public collapsedStates: boolean[] = [];
+  public openedCollapseIndex: number | null = null;
 
   constructor(
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
-    private _bitacoraService: BitacoraService
+    private _bitacoraService: BitacoraService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -144,48 +151,18 @@ export class BitacoraActividadV2Component implements OnInit {
     });
   }
 
-  addClimaItem(): void {
+  addItem(type : number): void {
+    let json = null;
+    switch(type) {
+      case 1: json = { tipo: type, climas: []}; break;
+      case 2: json = { tipo: type, horarios: []}; break;
+      case 3: json = { tipo: type, consumos: []}; break;
+      case 4: json = { tipo: type, climas: []}; break;
+    }
     const currentArray = this.bitacoraForm.get('contenido')?.value || [];
-    const newArray = [...currentArray, { tipo: 1, climas: [] }];
+    const newArray = [...currentArray, json];
     this.bitacoraForm.get('contenido')?.setValue(newArray);
-  }
-
-  addHorarioItem(): void {
-    // this.contenido.push(this.fb.group({
-    //   tipo: 2,
-    //   categoria: ['', Validators.required],
-    //   nombre: ['', Validators.required],
-    //   inicio: ['', Validators.required],
-    //   fin: ['', Validators.required]
-    // }));
-  }
-
-  addConsumoItem(): void {
-    // this.contenido.push(this.fb.group({
-    //   tipo: 3,
-    //   kit: [''],
-    //   color_ral: [''],
-    //   wo: [''],
-    //   metros_ejec: [''],
-    //   equipo: [''],
-    //   entregado: ['']
-    // }));
-  }
-
-  addActividadItem(): void {
-    // this.contenido.push(this.fb.group({
-    //   tipo: 4,
-    //   equipo: ['', Validators.required],
-    //   horometro: [''],
-    //   no_serie: [''],
-    //   modelo: [''],
-    //   ot: [''],
-    //   descripcion: ['', Validators.required],
-    //   fotografias: this.fb.group({
-    //     antes: this.fb.array([]),
-    //     despues: this.fb.array([])
-    //   })
-    // }));
+    this.openedCollapseIndex = currentArray.length;
   }
 
   updateValueContenido(index : number, value : any) {
@@ -197,6 +174,7 @@ export class BitacoraActividadV2Component implements OnInit {
 
   setValidate(value: any) {
     this.bContenido = value as boolean;
+    this.cdr.detectChanges();
   }
 
   minLengthArray(min: number): ValidatorFn {
@@ -207,7 +185,10 @@ export class BitacoraActividadV2Component implements OnInit {
   }
 
   removeItem(index: number): void {
-    this.bitacoraForm.get('contenido')?.value.removeAt(index);
+    const currentArray = this.bitacoraForm.get('contenido')?.value || [];
+    const newArray = [...currentArray];
+    newArray.splice(index, 1);
+    this.bitacoraForm.get('contenido')?.setValue(newArray);
   }
 
   onSubmit(): void {
@@ -241,6 +222,10 @@ export class BitacoraActividadV2Component implements OnInit {
         (firstError as HTMLElement).focus();
       }
     }
+  }
+
+  get isNextDisabled(): boolean {
+    return !this.bitacoraForm.valid || !this.bContenido;
   }
 
   private markFormGroupTouched(formGroup: FormGroup | FormArray): void {
@@ -286,6 +271,8 @@ export class BitacoraActividadV2Component implements OnInit {
     let storage = JSON.parse(localStorage.getItem('data-cache') as string);
     if(storage != null && typeof storage == 'object') {
       this.bitacoraForm.setValue(storage as BitacoraModel);
+      const contenidoLength = this.bitacoraForm.get('contenido')?.value?.length || 0;
+      this.openedCollapseIndex = contenidoLength > 0 ? contenidoLength - 1 : null;
     }
   }
 
@@ -299,18 +286,25 @@ export class BitacoraActividadV2Component implements OnInit {
   //#endregion
   //#region [Drag and drop]
   drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.bitacoraForm.get('contenido')?.value, event.previousIndex, event.currentIndex);
-    // Si necesitas mantener sincronizado el array subyacente
-    this.bitacoraForm.get('contenido')?.value.updateValueAndValidity();
+    const currentArray = this.bitacoraForm.get('contenido')?.value || [];
+    const newArray = [...currentArray]; // Copia inmutable
+    moveItemInArray(newArray, event.previousIndex, event.currentIndex); // Muta la copia
+  
+    // Actualiza el FormControl con el nuevo array
+    this.bitacoraForm.get('contenido')?.setValue(newArray);
   }
   //#endregion
   //#region [Collapse]
   isCollapsed(index: number): boolean {
-    return this.collapsedStates[index] ?? false;
+    return this.openedCollapseIndex !== index;
   }
   
   toggleCollapse(index: number): void {
-    this.collapsedStates[index] = !this.isCollapsed(index);
+    if (this.openedCollapseIndex === index) {
+      this.openedCollapseIndex = null; // Cierra el collapse si ya está abierto
+    } else {
+      this.openedCollapseIndex = index; // Abre el nuevo collapse y cierra cualquier otro
+    }
   }
   //#endregion
   //#region [Carrusel Tipo Bitacora]

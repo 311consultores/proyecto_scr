@@ -14,7 +14,7 @@ export class BitacoraTypePipe implements PipeTransform {
 
     switch (numericValue) {
       case 1:
-        return 'Clima';
+        return 'Climas';
       case 2:
         return 'Horarios';
       case 3:

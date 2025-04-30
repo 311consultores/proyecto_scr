@@ -79,3 +79,15 @@ export interface Clima {
     presion: string,
     desc: string
 };
+
+export interface Horario {
+    categoria: string,
+    nombre: string,
+    inicio: string,
+    fin: string
+};
+export interface Consumo {
+    desc: string,
+    unidad_medida: string,
+    cantidad: string
+};

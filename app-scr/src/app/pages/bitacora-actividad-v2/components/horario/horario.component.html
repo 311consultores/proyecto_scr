@@ -1,0 +1,118 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <h2 class="h4 text-primary py-1 my-0">Listado</h2>
+        </div>
+        <div class="col d-flex justify-content-end">
+            <button mat-raised-button color="accent" (click)="openHorarioModal($event)">
+                <mat-icon>playlist_add</mat-icon> Agregar
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            @if((this.horarioElement.get('horarios')?.value || []).length > 0) {
+                <div class="list-horario">
+                    <div cdkDropList (cdkDropListDropped)="drop($event)">
+                        @for (horario of this.horarioElement.get('horarios')?.value; track $index) {
+                            <div cdkDrag class="list-item-horario border">
+                                <div cdkDragHandle class="text-list drag-handle" (click)="openHorarioModal($event, horario, $index)">
+                                    <div class="title text-truncate">
+                                        <strong>({{horario.categoria}})</strong> {{horario.nombre}}
+                                    </div>
+                                    <div class="line text-truncate">
+                                        Entrada: {{horario.hora_inicio}} / Fin: {{horario.hora_fin}}
+                                    </div>
+                                </div>
+                                <button mat-icon-button 
+                                        color="warn"
+                                        (click)="deleteClima($index)">
+                                    <mat-icon>playlist_remove</mat-icon>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <mat-list>
+                    <mat-list-item class="border">
+                        <div matListItemTitle>Aún no se han agregado horarios</div>
+                    </mat-list-item>
+                </mat-list>
+            }
+        </div>
+        <div class="col-12">
+            <mat-error *ngIf="horarioElement.get('horarios')?.hasError('minLengthArray')" class="text-end">
+                Este elemento no puede ser vacio
+            </mat-error>
+        </div>
+    </div>
+</div>
+<ng-template #modal>
+    <h2 mat-dialog-title class="d-flex align-items-center gap-2 pt-3 mb-0">
+        <mat-icon>timer</mat-icon>
+        Registro de horarios
+    </h2>
+    <mat-dialog-content class="py-0 mt-0">
+        <form [formGroup]="horarioForm" (ngSubmit)="onSubmit()" class="row px-2 pt-4">
+            <div class="col-sm-12 col-md-5">
+                <!-- Categoria -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Categoria</mat-label>
+                    <input matInput type="text" formControlName="categoria"  tabindex="1" autofocus placeholder="Ej: Supervisor" style="text-transform: uppercase;">
+                    <mat-icon matSuffix>supervised_user_circle</mat-icon>
+                    <mat-error class="text-truncate" *ngIf="horarioForm.get('categoria')?.hasError('required')">
+                        Campo requerido
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-sm-12 col-md-7">
+                <!-- Nombre Completo -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label class="text-truncate">Nombre completo</mat-label>
+                    <input matInput type="text" formControlName="nombre" tabindex="2" style="text-transform: uppercase;">
+                    <mat-icon matSuffix>drive_file_rename_outline</mat-icon>
+                    <mat-error class="text-truncate" *ngIf="horarioForm.get('nombre')?.hasError('required')">
+                        Campo requerido
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-sm-12 col-md-6">
+                <!-- Hora de entrada -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label class="text-truncate">Hora entrada</mat-label>
+                    <input matInput type="time" formControlName="hora_inicio" tabindex="3" (input)="setFechaFin()">
+                    <mat-icon matSuffix>access_time</mat-icon>
+                    <mat-error *ngIf="horarioForm.get('hora_inicio')?.hasError('required')">
+                        Campo requerido
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-sm-12 col-md-6">
+                <!-- Hora de Salida -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Hora salida</mat-label>
+                    <input matInput type="time" formControlName="hora_fin" tabindex="4" readonly>
+                    <mat-icon matSuffix>access_time</mat-icon>
+                    <mat-error *ngIf="horarioForm.get('hora_fin')?.hasError('required')">
+                        Campo requerido
+                    </mat-error>
+                </mat-form-field>
+            </div>           
+            <mat-dialog-actions class="col-12 mt-2" align="end">
+                <button mat-raised-button  mat-dialog-close color="warn">
+                    <mat-icon>close</mat-icon>
+                    Cancelar
+                </button>
+                <button mat-raised-button
+                        tabindex="5"
+                        color="primary" 
+                        type="submit"
+                        [disabled]="horarioForm.invalid">
+                    <mat-icon>save</mat-icon>
+                    Guardar
+                </button>
+            </mat-dialog-actions>
+        </form>
+    </mat-dialog-content>
+</ng-template>
