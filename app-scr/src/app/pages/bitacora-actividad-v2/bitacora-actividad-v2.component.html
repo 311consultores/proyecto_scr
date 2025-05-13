@@ -140,11 +140,7 @@
                     <p class="text-muted">Agregue los diferentes elementos que conforman la bitácora</p>
                   </div>
                 </div>
-              </div>
-          
-              <!-- Body con scroll -->
-              <div class="step-body">
-                <div class="row g-1 mb-4">
+                <div class="row g-1 mb-2">
                     <div class="col-6 col-md-3">
                         <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addItem(1)">
                           <mat-icon>wb_sunny</mat-icon> Clima
@@ -161,23 +157,30 @@
                         </button>
                       </div>
                       <div class="col-6 col-md-3">
-                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="addItem(4)">
+                        <button mat-raised-button style="background-color: var(--naranja-principal); color: white;" class="w-100" (click)="openModalEncabezado()">
                           <mat-icon>build</mat-icon> Actividad
                         </button>
                     </div>
                 </div>
+              </div>
           
+              <!-- Body con scroll -->
+              <div class="step-body">
                 <div class="row">
                   <div class="col-12">
                     <div class="content-items">
                       <!-- Contenido dinámico... -->
                       <div cdkDropList (cdkDropListDropped)="drop($event)">
                         <ng-container *ngFor="let item of this.bitacoraForm.get('contenido')?.value || []; let i = index">
-                            <mat-card cdkDrag class="mb-3">
+                            <mat-card cdkDrag class="mb-3" [ngClass]="item.valido ? 'valid' : 'invalid'">
                                 <mat-card-header class="bg-light d-flex justify-content-between align-items-center" (click)="toggleCollapse(i)">
                                     <mat-card-title class="d-flex align-items-center">
                                         <mat-icon cdkDragHandle class="drag-handle">drag_indicator</mat-icon>
-                                        {{ item.tipo | bitacoraType | titlecase }}
+                                        @if(item.tipo < 4) {
+                                          {{ item.tipo | bitacoraType | titlecase }}
+                                        } @else {
+                                          {{ item.titulo.toUpperCase() }}
+                                        }
                                         <mat-icon>{{ isCollapsed(i) ? 'expand_more' : 'expand_less' }}</mat-icon>
                                     </mat-card-title>
                                     <button mat-icon-button (click)="removeItem(i)" matTooltip="Eliminar">
@@ -192,7 +195,7 @@
                                               <app-clima 
                                                 [_climaElement]="item" 
                                                 (getClimaElement)="updateValueContenido(i, $event)"
-                                                (validityChanged)="setValidate($event)" />
+                                                (validityChanged)="setValidate(i, $event)" />
                                           </div>
                                           
                                           <!-- Horario -->
@@ -200,17 +203,23 @@
                                               <app-horario 
                                                 [_horarioElement]="item"
                                                 (getHorarioElement)="updateValueContenido(i, $event)"
-                                                (validityChanged)="setValidate($event)" />
+                                                (validityChanged)="setValidate(i, $event)" />
                                           </div>
                                           
                                           <!-- Consumo -->
                                           <div *ngSwitchCase="3" class="row g-1  py-3 px-2">
-                                            <app-consumo />
+                                            <app-consumo 
+                                            [_consumoElement]="item"
+                                            (getConsumoElement)="updateValueContenido(i, $event)"
+                                            (validityChanged)="setValidate(i, $event)"/>
                                           </div>
                                           
                                           <!-- Actividad -->
                                           <div *ngSwitchCase="4" class="row g-1  py-3 px-2">
-                                            <app-actividad />
+                                            <app-actividad 
+                                            [_actividad]="item"
+                                            (getActividadElement)="updateValueContenido(i, $event)"
+                                            />
                                           </div>
                                         </ng-container>
                                     </mat-card-content>
@@ -317,3 +326,40 @@
       </mat-card-content>
     </mat-card>
   </div>
+  <!-- Nueva Actividad Titulo -->
+   <ng-template #modal>
+    <h2 mat-dialog-title class="d-flex align-items-center gap-2 pt-3 mb-0">
+        Ingresa el Orden de trabajo
+    </h2>
+    <mat-dialog-content class="py-0 mt-0">
+        <form [formGroup]="encabezadoForm" (ngSubmit)="onEncabezadoSubmit()" class="row px-2 pt-4">
+            <div class="col-sm-12 col-sm-12">
+                <!-- Descripcion -->
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Orden de trabajo</mat-label>
+                    <input matInput type="text" formControlName="titulo"  tabindex="1" autofocus placeholder="Ej: OT-1234" style="text-transform: uppercase;">
+                    <mat-error class="text-truncate" *ngIf="encabezadoForm.get('titulo')?.hasError('required')">
+                        Campo requerido
+                    </mat-error>
+                    <mat-error class="text-truncate" *ngIf="encabezadoForm.get('titulo')?.hasError('minLength')">
+                        Minimo 3 caracteres
+                    </mat-error>
+                </mat-form-field>
+            </div>      
+            <mat-dialog-actions class="col-12 mt-2" align="end">
+                <button mat-raised-button  mat-dialog-close color="warn">
+                    <mat-icon>close</mat-icon>
+                    Cancelar
+                </button>
+                <button mat-raised-button
+                        tabindex="5"
+                        color="primary" 
+                        type="submit"
+                        [disabled]="encabezadoForm.invalid">
+                    <mat-icon>save</mat-icon>
+                    Guardar
+                </button>
+            </mat-dialog-actions>
+        </form>
+    </mat-dialog-content>
+</ng-template>

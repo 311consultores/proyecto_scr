@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,6 +33,7 @@ import { ClimaComponent } from './components/clima/clima.component';
 import { HorarioComponent } from './components/horario/horario.component';
 import { ConsumoComponent } from './components/consumo/consumo.component';
 import { ActividadComponent } from './components/actividad/actividad.component';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-bitacora-actividad-v2',
@@ -56,7 +57,8 @@ import { ActividadComponent } from './components/actividad/actividad.component';
     ClimaComponent,
     HorarioComponent,
     ConsumoComponent,
-    ActividadComponent
+    ActividadComponent,
+    MatDialogModule
 ],
   templateUrl: './bitacora-actividad-v2.component.html',
   styleUrl: './bitacora-actividad-v2.component.scss',
@@ -79,6 +81,7 @@ import { ActividadComponent } from './components/actividad/actividad.component';
 
 export class BitacoraActividadV2Component implements OnInit {
   public bitacoraForm!: FormGroup;
+  public encabezadoForm!: FormGroup;
   public bContenido= false;
   public tipoBitacoraOptions = [
     { value: 1, label: 'MAI', logo: 'MAI.png' },
@@ -90,12 +93,17 @@ export class BitacoraActividadV2Component implements OnInit {
   public selectedIndex = 0;
   public offset = 0;
   public openedCollapseIndex: number | null = null;
+  
+  // Modal Encabezado
+  @ViewChild('modal') modal!: TemplateRef<any>;
+  public dialogRef!: MatDialogRef<any>;
 
   constructor(
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private _bitacoraService: BitacoraService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -121,6 +129,12 @@ export class BitacoraActividadV2Component implements OnInit {
 
     this.bitacoraForm.valueChanges.subscribe(() => {
       this.updateCache();
+    });
+  }
+
+  initEncabezado() {
+    this.encabezadoForm = this.fb.group({
+      titulo: ["", [Validators.required, Validators.minLength(3)]]
     });
   }
 
@@ -151,13 +165,13 @@ export class BitacoraActividadV2Component implements OnInit {
     });
   }
 
-  addItem(type : number): void {
+  addItem(type : number, titulo= ""): void {
     let json = null;
     switch(type) {
-      case 1: json = { tipo: type, climas: []}; break;
-      case 2: json = { tipo: type, horarios: []}; break;
-      case 3: json = { tipo: type, consumos: []}; break;
-      case 4: json = { tipo: type, climas: []}; break;
+      case 1: json = { tipo: type, climas: [], valido: false}; break;
+      case 2: json = { tipo: type, horarios: [], valido: false}; break;
+      case 3: json = { tipo: type, consumos: [], valido: false}; break;
+      case 4: json = { tipo: type, titulo, data: {}, valido: false}; break;
     }
     const currentArray = this.bitacoraForm.get('contenido')?.value || [];
     const newArray = [...currentArray, json];
@@ -170,10 +184,14 @@ export class BitacoraActividadV2Component implements OnInit {
     const newArray = [...currentArray];
     newArray[index] = value;
     this.bitacoraForm.get('contenido')?.setValue(newArray);
+    this.cdr.detectChanges();
   }
 
-  setValidate(value: any) {
-    this.bContenido = value as boolean;
+  setValidate(index: number, value: any) {
+    const currentArray = this.bitacoraForm.get('contenido')?.value || [];
+    const newArray = [...currentArray];
+    newArray[index].valido = value;
+    this.bitacoraForm.get('contenido')?.setValue(newArray);
     this.cdr.detectChanges();
   }
 
@@ -225,7 +243,8 @@ export class BitacoraActividadV2Component implements OnInit {
   }
 
   get isNextDisabled(): boolean {
-    return !this.bitacoraForm.valid || !this.bContenido;
+    const currentArray = this.bitacoraForm.get('contenido')?.value || [];
+    return currentArray.find((x : any) => x.valido == false);
   }
 
   private markFormGroupTouched(formGroup: FormGroup | FormArray): void {
@@ -265,6 +284,47 @@ export class BitacoraActividadV2Component implements OnInit {
   get contenidoGroup(): AbstractControl {
     return this.bitacoraForm.get('contenido')!;
   }
+
+  openModalEncabezado() {
+    this.initEncabezado();
+
+    this.dialogRef = this.dialog.open(this.modal, {
+      maxWidth: '100vw',
+      width: '95%',
+      panelClass: 'full-screen-modal',
+      disableClose: true,
+      hasBackdrop: true
+    });
+
+    this.dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addItem(4, result.titulo);
+        // const currentArray = this.consumoElement.get('consumos')?.value || [];
+        // let newArray;
+
+        // if (consumoIndex >= 0) { // O si usas ID: if (result.id)
+        //   newArray = [...currentArray];
+        //   newArray[consumoIndex] = result; // Reemplaza el elemento en el índice
+        // } 
+        // // Caso 2: Agregar (si no hay índice/ID)
+        // else {
+        //   newArray = [...currentArray, result];
+        // }
+        // this.consumoElement.get('consumos')?.setValue(newArray);
+        // this.getConsumoElement.emit(this.consumoElement.value);
+        // this.consumoForm.reset();
+      }
+    });
+  }
+
+  onEncabezadoSubmit(): void {
+    if (this.encabezadoForm.valid) {
+      this.dialogRef.close(this.encabezadoForm.value);
+    } else {
+      this.encabezadoForm.markAllAsTouched();
+    }
+  }
+
   //#region  [Cache]
   getCache() {
     this.initForm();

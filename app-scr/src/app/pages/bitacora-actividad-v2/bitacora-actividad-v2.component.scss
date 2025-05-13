@@ -7,6 +7,7 @@ $accent: mat.m2-define-palette(mat.$m2-teal-palette);
 $warn: mat.m2-define-palette(mat.$m2-red-palette);
 $primary-aunt: #F66605;
 $secondary-aunt: #F63F1E;
+$success-aunt: #28A745;
 $black: #2D2829;
 
 $theme: mat.m2-define-light-theme((
@@ -192,7 +193,7 @@ mat-stepper {
     background-color: rgba(0, 0, 0, 0.04);
 }
 
-::ng-depp .mat-step-icon-content {
+::ng-deep .mat-step-icon-content {
     position: absolute !important;
     top: 53% !important;
     left: 50% !important;
@@ -211,7 +212,11 @@ mat-stepper {
 
 /* Items de contenido */
 .content-items {
-  .mat-mdc-card {
+  .mat-mdc-card.valid {
+    margin-bottom: 1rem;
+    border-left: 4px solid $success-aunt;
+  }
+  .mat-mdc-card.invalid {
     margin-bottom: 1rem;
     border-left: 4px solid $secondary-aunt;
   }

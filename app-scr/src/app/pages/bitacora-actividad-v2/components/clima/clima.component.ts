@@ -13,6 +13,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 interface Clima {
   tipo: number,
   climas: Clima[]
+  valido: boolean
 };
 
 @Component({

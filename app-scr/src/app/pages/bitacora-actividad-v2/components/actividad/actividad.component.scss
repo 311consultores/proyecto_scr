@@ -1,0 +1,58 @@
+/* --- Cards --- */
+.card {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.card-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+// Titulo de Apartados
+.actividad-title {
+    color: #444;
+    font-size: 18px;
+    font-weight: 500;
+}
+/* --- Secciones de fotos --- */
+.photo-section {
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 6px;
+  height: 100%;
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #444;
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+
+/* --- Botones --- */
+.btn-primary {
+  background: #2563eb;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-outline-primary {
+  border: 1px solid #2563eb;
+  color: #2563eb;
+}
+
+/* --- Campos del formulario --- */
+mat-form-field {
+  margin-bottom: 8px;
+}
+::ng-deep .mdc-label {
+    font-size: 16px !important;
+}
+::ng-deep .txt-aunt .mat-mdc-text-field-wrapper {
+    height: auto !important;
+}
+
+::ng-deep #form-actividad .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
+    display: none;
+}
