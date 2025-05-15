@@ -56,3 +56,7 @@ mat-form-field {
 ::ng-deep #form-actividad .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
     display: none;
 }
+::ng-deep .ql-editor {
+  font-family: 'Roboto' !important;
+  font-size: 16px !important;
+}

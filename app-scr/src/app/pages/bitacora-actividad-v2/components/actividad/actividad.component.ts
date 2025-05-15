@@ -13,6 +13,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { Actividad } from '../../../../core/models/biracora.model';
 import { BitacoraService } from '../../../../core/services/bitacora.service';
 import { WebcamComponent } from '../../../../shared/components/webcam/webcam.component';
+import { QuillModule } from 'ngx-quill';
 
 interface ActividadElement {
   tipo : number,
@@ -35,6 +36,7 @@ interface ActividadElement {
     MatCheckboxModule,
     GaleriaComponent,
     WebcamComponent,
+    QuillModule
   ],
   templateUrl: './actividad.component.html',
   styleUrl: './actividad.component.scss',
@@ -129,7 +131,6 @@ export class ActividadComponent {
   }
 
   subirImagenes(event: any, tipo : number) {
-    debugger;
     const archivos = event.target.files;
     if (archivos.length > 0) {
       for (let archivo of archivos) {
@@ -219,13 +220,9 @@ export class ActividadComponent {
 
   // Cuando se capturan fotos, asignarlas a la actividad actual
   onPhotosCaptured(photos: string[]) {
-    const fotos = this.tipo_foto == 1 ? 
-    this.actividadForm.get('fotos_ant')?.value || [] :
-    this.actividadForm.get('fotos_des')?.value || [];
-    let newArray = [...fotos, photos];
-    this.tipo_foto == 1 ? 
-    this.actividadForm.get('fotos_ant')?.setValue(newArray) :
-    this.actividadForm.get('fotos_des')?.setValue(newArray);
+      this.tipo_foto == 1 ? 
+      this.actividadForm.get('fotos_ant')?.setValue(photos) :
+      this.actividadForm.get('fotos_des')?.setValue(photos);
   }
 
   // Cerrar el modal

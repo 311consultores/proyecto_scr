@@ -45,7 +45,7 @@
                 </div>
                 <mat-icon>{{ isCollapsed(1) ? 'expand_more' : 'expand_less' }}</mat-icon>
             </div>
-            <div [@collapse]="isCollapsed(1) ? 'collapsed' : 'expanded'" class="row">
+            <div [@collapse]="isCollapsed(1) ? 'collapsed' : 'expanded'" class="row gy-1">
                 <!-- Sección "Antes" -->
                 <div class="col-md-6 col-sm-12">
                     <div class="photo-section">
@@ -98,10 +98,28 @@
             </div>
         </div>
         <div class="col-12 mt-3">
-            <mat-form-field appearance="outline" class="w-100 txt-aunt">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex gap-2">
+                    <mat-icon>description</mat-icon>
+                    <h4 class="actividad-title">Recomendación</h4>
+                </div>
+            </div>
+            <quill-editor 
+                formControlName="recomendacion"
+                [modules]="{
+                    toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['clean']
+                    ]
+                }"
+                class="w-100 text-format"
+                placeholder="Ingresa tu recomendación">
+            </quill-editor>
+            <!-- <mat-form-field appearance="outline" class="w-100 txt-aunt">
                 <mat-label>Recomendación</mat-label>
                 <textarea matInput placeholder="Ingresa una recomendación acerca de la actividad..." tabindex="5"></textarea>
-            </mat-form-field>
+            </mat-form-field> -->
         </div>
         <div class="col-12 d-flex justify-content-end">
             <mat-checkbox formControlName="bFinalizo" color="primary" style="font-size: 16px;" tabindex="6">

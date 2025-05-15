@@ -25,6 +25,7 @@ import {
 import html2canvas from 'html2canvas';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BitacoraTypePipe } from '../../core/pipes/bitacora.pipe';
+import { TiposPipe } from '../../core/pipes/tipos.pipe';
 import { BitacoraService } from '../../core/services/bitacora.service';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -34,6 +35,8 @@ import { HorarioComponent } from './components/horario/horario.component';
 import { ConsumoComponent } from './components/consumo/consumo.component';
 import { ActividadComponent } from './components/actividad/actividad.component';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { ModalConfirmacionComponent } from './components/modal-confirmacion/modal-confirmacion.component';
+import { PrevisualizadorPdfComponent } from './components/previsualizador-pdf/previsualizador-pdf.component';
 
 @Component({
   selector: 'app-bitacora-actividad-v2',
@@ -58,7 +61,8 @@ import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dial
     HorarioComponent,
     ConsumoComponent,
     ActividadComponent,
-    MatDialogModule
+    MatDialogModule,
+    PrevisualizadorPdfComponent
 ],
   templateUrl: './bitacora-actividad-v2.component.html',
   styleUrl: './bitacora-actividad-v2.component.scss',
@@ -89,7 +93,6 @@ export class BitacoraActividadV2Component implements OnInit {
     { value: 3, label: 'MPR', logo: 'MPR.png' }
   ];
   public catalogos: any;
-  public showPreview = false;
   public selectedIndex = 0;
   public offset = 0;
   public openedCollapseIndex: number | null = null;
@@ -97,6 +100,10 @@ export class BitacoraActividadV2Component implements OnInit {
   // Modal Encabezado
   @ViewChild('modal') modal!: TemplateRef<any>;
   public dialogRef!: MatDialogRef<any>;
+
+  // Preview
+  public showPreview = false;
+  public touchStartY = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -107,15 +114,38 @@ export class BitacoraActividadV2Component implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.getCache();
+    this.initBitacora();
     this.getCatalogos();
+  }
+
+  initBitacora() {
+    this.initForm();
+    let storage = JSON.parse(localStorage.getItem('data-cache') as string);
+    if(storage != null && typeof storage == 'object') {
+      const dialogRef = this.dialog.open(ModalConfirmacionComponent, {
+        data: storage.encabezado,
+        width: '500px',
+        disableClose: true
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result === true) {
+          // Continuar con el reporte existente
+          this.setCache(storage);
+          this.initializeSelectedIndex();
+        } else if (result === false) {
+          // Comenzar nuevo reporte
+          localStorage.removeItem('data-cache');
+        }
+      });
+    }    
   }
 
   initForm() {
     this.bitacoraForm = this.fb.group({
       encabezado: this.fb.nonNullable.group({
         tipo_bitacora: [1, Validators.required],
-        titulo: ['Reporte diario de trabajo', Validators.required],
+        titulo: ['', Validators.required],
         folio_reporte: ['', Validators.required],
         proyecto: ['', Validators.required],
         responsable: ['', Validators.required],
@@ -244,7 +274,7 @@ export class BitacoraActividadV2Component implements OnInit {
 
   get isNextDisabled(): boolean {
     const currentArray = this.bitacoraForm.get('contenido')?.value || [];
-    return currentArray.find((x : any) => x.valido == false);
+    return currentArray.find((x : any) => x.valido == false) || currentArray.length == 0;
   }
 
   private markFormGroupTouched(formGroup: FormGroup | FormArray): void {
@@ -254,11 +284,6 @@ export class BitacoraActividadV2Component implements OnInit {
         this.markFormGroupTouched(control);
       }
     });
-  }
-
-  togglePreview(): void {
-    this.showPreview = !this.showPreview;
-    if (this.showPreview) this.updatePreview();
   }
 
   updatePreview(): void {
@@ -326,14 +351,10 @@ export class BitacoraActividadV2Component implements OnInit {
   }
 
   //#region  [Cache]
-  getCache() {
-    this.initForm();
-    let storage = JSON.parse(localStorage.getItem('data-cache') as string);
-    if(storage != null && typeof storage == 'object') {
-      this.bitacoraForm.setValue(storage as BitacoraModel);
-      const contenidoLength = this.bitacoraForm.get('contenido')?.value?.length || 0;
-      this.openedCollapseIndex = contenidoLength > 0 ? contenidoLength - 1 : null;
-    }
+  setCache(storage : any) {
+    this.bitacoraForm.setValue(storage as BitacoraModel);
+    const contenidoLength = this.bitacoraForm.get('contenido')?.value?.length || 0;
+    this.openedCollapseIndex = contenidoLength > 0 ? contenidoLength - 1 : null;
   }
 
   updateCache() {
@@ -342,6 +363,21 @@ export class BitacoraActividadV2Component implements OnInit {
 
   cleanCache() {
     localStorage.removeItem('data-cache');
+  }
+
+  getTotalPorTipo(): {tipo: string, cantidad: number}[] {
+    const items = this.bitacoraForm.get('contenido')?.value || [];
+    const conteo: {[key: string]: number} = {}; // Tipo explícito
+
+    items.forEach((item : any) => {
+      const tipo = item.tipo;
+      conteo[tipo] = (conteo[tipo] || 0) + 1;
+    });
+
+    return Object.keys(conteo).map(tipo => ({
+      tipo: tipo,
+      cantidad: conteo[tipo]
+    }));
   }
   //#endregion
   //#region [Drag and drop]
@@ -368,6 +404,19 @@ export class BitacoraActividadV2Component implements OnInit {
   }
   //#endregion
   //#region [Carrusel Tipo Bitacora]
+  private initializeSelectedIndex(): void {
+    // Intenta recuperar el índice guardado
+    let savedIndex = this.getEncabezadoControl('tipo_bitacora').value;
+    this.selectedIndex = parseInt(savedIndex, 10) -1;
+    
+    // Asegúrate de que el índice esté dentro de los límites
+    if (this.selectedIndex > this.tipoBitacoraOptions.length) {
+      this.selectedIndex = 0;
+    }
+    
+    this.offset = -this.selectedIndex * 100;
+  }
+
   prevLogo(): void {
     this.selectedIndex = (this.selectedIndex - 1 + this.tipoBitacoraOptions.length) % this.tipoBitacoraOptions.length;
     this.offset = -this.selectedIndex * 100;
@@ -382,12 +431,40 @@ export class BitacoraActividadV2Component implements OnInit {
 
   updateTipoBitacora(): void {
     const selectedValue = this.tipoBitacoraOptions[this.selectedIndex].value;
+    console.log(selectedValue);
     this.getEncabezadoControl('tipo_bitacora').setValue(selectedValue);
   }
 
   getLogoPath(value: number): string {
     const option = this.tipoBitacoraOptions.find(opt => opt.value === value);
     return option ? `logos/${option.logo}` : '';
+  }
+  //#endregion
+  //#region [Preview]
+  togglePreview() {
+    this.showPreview = !this.showPreview;
+    const footer = document.getElementById('stepFooter');
+    if (footer) {
+      footer.classList.toggle('expanded', this.showPreview);
+    }
+  }
+  
+  handleTouchStart(event: TouchEvent) {
+    this.touchStartY = event.touches[0].clientY;
+  }
+  
+  handleTouchEnd(event: TouchEvent) {
+    const touchEndY = event.changedTouches[0].clientY;
+    const deltaY = this.touchStartY - touchEndY;
+    
+    // Si el desplazamiento hacia arriba es significativo
+    if (deltaY > 30 && !this.showPreview) {
+      this.togglePreview();
+    } 
+    // Si el desplazamiento hacia abajo es significativo y está expandido
+    else if (deltaY < -30 && this.showPreview) {
+      this.togglePreview();
+    }
   }
   //#endregion
 }

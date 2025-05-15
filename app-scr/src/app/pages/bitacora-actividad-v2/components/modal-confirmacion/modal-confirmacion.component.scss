@@ -1,0 +1,64 @@
+@use '@angular/material' as mat;
+
+/* Tema personalizado */
+$primary: mat.m2-define-palette(mat.$m2-blue-palette, A400, A100, A700);
+$accent: mat.m2-define-palette(mat.$m2-teal-palette);
+$warn: mat.m2-define-palette(mat.$m2-red-palette);
+$primary-aunt: #F66605;
+$secondary-aunt: #F63F1E;
+$success-aunt: #28A745;
+$black: #2D2829;
+
+$theme: mat.m2-define-light-theme((
+  color: (
+    primary: $primary,
+    accent: $accent,
+    warn: $warn
+  ),
+  density: -1
+));
+
+@include mat.all-component-themes($theme);
+
+.confirmacion-dialog {
+    .mat-dialog-container {
+        padding: 10px;
+    }
+    
+    .mat-dialog-title {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .mat-dialog-content {
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #555;
+    }
+    
+    .mat-dialog-actions {
+        padding: 16px 0 0 0;
+        justify-content: flex-end;
+        
+        button {
+        margin-left: 8px;
+        }
+    }
+
+  /* Añade esto a tus estilos globales o al componente */
+    .mat-mdc-dialog-container, .mdc-dialog__container {
+        display: flex !important;
+        min-height: 100% !important;
+    }
+
+    .mat-mdc-dialog-surface {
+        min-height: auto !important; /* O un valor mínimo si es necesario */
+        overflow: visible !important;
+    }
+}
+
+.light-green-button {
+    background-color: #8bc34a;  // Código HEX para light-green
+    color: rgba(0, 0, 0, 0.87); // Color de texto para mejor contraste
+}
