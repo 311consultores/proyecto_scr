@@ -3,7 +3,7 @@
 .modal-webcam {
     display: none; /* Oculto por defecto */
     position: fixed;
-    z-index: 1;
+    z-index: 2;
     left: 0;
     top: 0;
     width: 100%;
@@ -17,7 +17,7 @@
     }
     .modal-close {
         position: absolute;
-        z-index: 5;
+        z-index: 6;
         right: 25px;
         top: 10px;
         display: flex;
@@ -36,7 +36,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 2;
+        z-index: 3;
     }
     .centrado-camera {
         position: absolute;
@@ -47,7 +47,7 @@
         display: flex;
         justify-content: space-between;
         align-items: end;
-        z-index: 3;
+        z-index: 4;
         padding: 0px 30px;
         border: 2px solid rgb(233, 122, 122);
         .icon {
@@ -70,7 +70,7 @@
                 background-color: var(--oct);
             }
             margin-bottom: 20px;
-            z-index: 5;
+            z-index: 6;
         }
         .reels-photos {
             position: relative;
@@ -104,7 +104,7 @@
                 position: absolute;
                 top: -15px;
                 right: -9px;
-                z-index: 4;
+                z-index: 5;
                 font-size: 25px;
                 cursor: pointer;
             }
@@ -122,7 +122,7 @@
     border: 5px solid transparent;
     border-radius: 0px;
     box-sizing: border-box;
-    z-index: 3;
+    z-index: 4;
 }
 
 .centrado-camera.active::before {

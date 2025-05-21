@@ -91,3 +91,17 @@ export interface Consumo {
     unidad_medida: string,
     cantidad: string
 };
+
+export interface Actividad {
+    fecha: Date,
+    horas_funcion: string,
+    no_economico: string,
+    no_serie: string,
+    modelo: string,
+    bEvidencia: boolean,
+    fotos_ant: [],
+    fotos_des: [],
+    recomendacion: string,
+    bFinalizo: boolean,
+    motivo: string
+}
