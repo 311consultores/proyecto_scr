@@ -24,8 +24,8 @@ import { MatIconModule } from '@angular/material/icon';
         
         <!-- Muestra los datos del encabezado -->
         <div class="data-preview" *ngIf="data">
-          <p class="text-truncate"><strong>Tipo:</strong> {{data?.titulo || 'No especificado'}}</p>
-          <p class="text-truncate"><strong>Tipo:</strong> {{data?.proyecto || 'No especificado'}}</p>
+          <p class="text-truncate"><strong>Folio:</strong> {{data?.folio_reporte || 'No especificado'}}</p>
+          <p class="text-truncate"><strong>Proyecto:</strong> {{data?.proyecto || 'No especificado'}}</p>
           <p><strong>Fecha:</strong> {{ formatDate(data.fecha) }}</p>
           <!-- Añade más campos según necesites -->
         </div>

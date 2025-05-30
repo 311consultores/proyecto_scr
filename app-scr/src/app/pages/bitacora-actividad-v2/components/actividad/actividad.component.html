@@ -12,28 +12,34 @@
                 <h4 class="actividad-title">Equipo</h4>
             </div>
         </div>
-        <div class="col-sm-12 col-md-6">
+        <div class="col-sm-12 col-md-8">
             <mat-form-field appearance="outline" class="w-100">
-                <mat-label>No. Economico</mat-label>
-                <input matInput type="text" formControlName="no_economico" tabindex="1" autofocus style="text-transform: uppercase;">
+                <mat-label>Equipo</mat-label>
+                <input matInput type="text" formControlName="equipo" tabindex="1" autofocus style="text-transform: uppercase;">
             </mat-form-field>
         </div>
-        <div class="col-sm-12 col-md-6">
+        <div class="col-sm-12 col-md-4">
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label class="text-truncate">Horas de uso</mat-label>
                 <input matInput type="number" formControlName="horas_funcion" placeholder="Horas" tabindex="2">
             </mat-form-field>
         </div>
-        <div class="col-sm-12 col-md-6">
+        <div class="col-sm-12 col-md-4">
             <mat-form-field appearance="outline" class="w-100">
-                <mat-label>No. Serie</mat-label>
-                <input matInput type="text" formControlName="no_serie"  tabindex="3" style="text-transform: uppercase;">
+                <mat-label>No. Economico</mat-label>
+                <input matInput type="text" formControlName="no_economico" tabindex="3" autofocus style="text-transform: uppercase;">
             </mat-form-field>
         </div>
-        <div class="col-sm-12 col-md-6">
+        <div class="col-sm-12 col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>No. Serie</mat-label>
+                <input matInput type="text" formControlName="no_serie"  tabindex="4" style="text-transform: uppercase;">
+            </mat-form-field>
+        </div>
+        <div class="col-sm-12 col-md-4">
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Modelo</mat-label>
-                <input matInput type="text" formControlName="modelo"  tabindex="4" style="text-transform: uppercase;">
+                <input matInput type="text" formControlName="modelo"  tabindex="5" style="text-transform: uppercase;">
             </mat-form-field>
         </div>
         <!-- Sección "Evidencia fotografica" -->
@@ -101,11 +107,11 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex gap-2">
                     <mat-icon>description</mat-icon>
-                    <h4 class="actividad-title">Recomendación</h4>
+                    <h4 class="actividad-title">Descripción</h4>
                 </div>
             </div>
             <quill-editor 
-                formControlName="recomendacion"
+                formControlName="descripcion"
                 [modules]="{
                     toolbar: [
                     ['bold', 'italic', 'underline'],
@@ -114,7 +120,8 @@
                     ]
                 }"
                 class="w-100 text-format"
-                placeholder="Ingresa tu recomendación">
+                tabindex="6"
+                placeholder="Describe la actividad realizada">
             </quill-editor>
             <!-- <mat-form-field appearance="outline" class="w-100 txt-aunt">
                 <mat-label>Recomendación</mat-label>
@@ -122,7 +129,7 @@
             </mat-form-field> -->
         </div>
         <div class="col-12 d-flex justify-content-end">
-            <mat-checkbox formControlName="bFinalizo" color="primary" style="font-size: 16px;" tabindex="6">
+            <mat-checkbox formControlName="bFinalizo" color="primary" style="font-size: 16px;" tabindex="7">
                 Actividad finalizada
             </mat-checkbox>
         </div>
@@ -130,9 +137,15 @@
             <div class="col-12">
                 <mat-form-field appearance="outline" class="w-100 txt-aunt">
                     <mat-label>Motivo</mat-label>
-                    <textarea matInput formControlName="motivo" placeholder="¿Por que no se finalizo?" tabindex="7"></textarea>
+                    <textarea matInput formControlName="motivo" placeholder="¿Por que no se finalizo?" tabindex="8"></textarea>
                 </mat-form-field>
             </div>
         }
+        <div class="col-12">
+            <mat-form-field appearance="outline" class="w-100 txt-aunt">
+                <mat-label>Recomendación</mat-label>
+                <textarea matInput formControlName="recomendacion" placeholder="¿Deseas agrear alguna recomendación?" [tabindex]="!actividadForm.get('bFinalizo')?.value ? '9' : '8'"></textarea>
+            </mat-form-field>
+        </div>
     </form>
 </div>

@@ -90,7 +90,7 @@ export class ActividadComponent {
 
   initActividad() {
     this.actividadForm = this.fb.group({
-      fecha: [new Date()],
+      equipo: [null],
       horas_funcion: [null, Validators.required],
       no_economico: [null, Validators.required],
       no_serie: [null, Validators.required],
@@ -98,6 +98,7 @@ export class ActividadComponent {
       bEvidencia: [false],
       fotos_ant: [[]],
       fotos_des: [[]],
+      descripcion: [null],
       recomendacion: [null],
       bFinalizo: [true],
       motivo: [null]

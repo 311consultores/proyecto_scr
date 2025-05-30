@@ -1,0 +1,20 @@
+<div class="pdf-container position-relative">
+    <pdf-viewer 
+      [src]="pdfSrc" 
+      [render-text]="true"
+      class="w-100 h-100"
+      [original-size]="false"
+      [show-all]="true"
+      [fit-to-page]="true"
+      [zoom]="zoom">
+    </pdf-viewer>
+  
+    <button 
+      class="floating-download"
+      (click)="downloadPdf()"
+      [disabled]="!pdfSrc"
+      mat-icon-button
+      aria-label="Descargar PDF">
+      <mat-icon>download</mat-icon>
+    </button>
+  </div>

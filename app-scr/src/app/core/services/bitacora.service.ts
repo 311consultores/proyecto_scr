@@ -89,6 +89,13 @@ export class BitacoraService {
     );
   }
 
+  getPreview(json : any) {
+    return this.http.post<any>(
+      environment.apiUrl + 'bitacora/obtenerPrevisualizacion',
+      json
+    );
+  }
+
   //Generales
   generarReporteBitacora(json: any) {
     return this.http.post<any>(

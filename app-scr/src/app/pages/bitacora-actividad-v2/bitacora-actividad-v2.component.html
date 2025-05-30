@@ -239,7 +239,7 @@
                   <button mat-stroked-button matStepperPrevious>
                     <mat-icon>arrow_back</mat-icon> Anterior
                   </button>
-                  <button mat-raised-button color="primary" matStepperNext [disabled]="isNextDisabled">
+                  <button mat-raised-button color="primary" matStepperNext [disabled]="isNextDisabled" (click)="bPreview = true">
                     Siguiente: Revisión <mat-icon>arrow_forward</mat-icon>
                   </button>
                 </div>
@@ -266,13 +266,13 @@
               <div class="row flex-grow-1 d-flex m-0">
                 <!-- Este será el que crece -->
                 <div class="col-12 flex-grow-1 d-flex">
-                  <app-previsualizador-pdf class="w-100" />
+                  <app-previsualizador-pdf class="h-100 w-100" [bitacora]="bitacoraForm.value" [bPreview]="bPreview" />
                 </div>
 
                 <!-- Checkbox al final -->
                 <div class="col-12 d-flex justify-content-center">
-                  <mat-checkbox [formControl]="getEncabezadoControl('bFinalizado')">
-                    Confirmo que la información es correcta
+                  <mat-checkbox [formControl]="getEncabezadoControl('bFinalizado')" style="font-size: 14px;">
+                    He validado y descargado la bitacora.
                   </mat-checkbox>
                 </div>
               </div>
@@ -282,7 +282,7 @@
             <div class="step-footer">
               <div class="row">
                 <div class="col-12 d-flex justify-content-between">
-                  <button mat-stroked-button matStepperPrevious>
+                  <button mat-stroked-button matStepperPrevious  (click)="bPreview = false">
                     <mat-icon>arrow_back</mat-icon> Anterior
                   </button>
                   <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!getEncabezadoControl('bFinalizado').value">

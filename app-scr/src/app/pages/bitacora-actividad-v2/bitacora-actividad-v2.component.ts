@@ -23,9 +23,9 @@ import {
   Validators
 } from '@angular/forms';
 import html2canvas from 'html2canvas';
+import * as LZString from 'lz-string';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BitacoraTypePipe } from '../../core/pipes/bitacora.pipe';
-import { TiposPipe } from '../../core/pipes/tipos.pipe';
 import { BitacoraService } from '../../core/services/bitacora.service';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -84,6 +84,7 @@ import { PrevisualizadorPdfComponent } from './components/previsualizador-pdf/pr
 })
 
 export class BitacoraActividadV2Component implements OnInit {
+  public bPreview = false;
   public bitacoraForm!: FormGroup;
   public encabezadoForm!: FormGroup;
   public bContenido= false;
@@ -120,7 +121,9 @@ export class BitacoraActividadV2Component implements OnInit {
 
   initBitacora() {
     this.initForm();
-    let storage = JSON.parse(localStorage.getItem('data-cache') as string);
+    let storage = localStorage.getItem('data-cache') ? JSON.parse(
+      LZString.decompress(localStorage.getItem('data-cache') as string)
+    ) : null;
     if(storage != null && typeof storage == 'object') {
       const dialogRef = this.dialog.open(ModalConfirmacionComponent, {
         data: storage.encabezado,
@@ -286,22 +289,6 @@ export class BitacoraActividadV2Component implements OnInit {
     });
   }
 
-  updatePreview(): void {
-    // lógica de actualización de preview
-  }
-
-  async captureRealPreview(): Promise<void> {
-    const element = document.getElementById('pdf-full-preview') || new HTMLElement();
-    const canvas = await html2canvas(element, {
-      scale: 0.3,
-      logging: false,
-      useCORS: true
-    });
-    const previewContent = document.querySelector('.preview-content') || new Element();
-    previewContent.innerHTML = '';
-    previewContent.appendChild(canvas);
-  }
-
   get encabezadoGroup(): AbstractControl {
     return this.bitacoraForm.get('encabezado')!;
   }
@@ -324,20 +311,6 @@ export class BitacoraActividadV2Component implements OnInit {
     this.dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.addItem(4, result.titulo);
-        // const currentArray = this.consumoElement.get('consumos')?.value || [];
-        // let newArray;
-
-        // if (consumoIndex >= 0) { // O si usas ID: if (result.id)
-        //   newArray = [...currentArray];
-        //   newArray[consumoIndex] = result; // Reemplaza el elemento en el índice
-        // } 
-        // // Caso 2: Agregar (si no hay índice/ID)
-        // else {
-        //   newArray = [...currentArray, result];
-        // }
-        // this.consumoElement.get('consumos')?.setValue(newArray);
-        // this.getConsumoElement.emit(this.consumoElement.value);
-        // this.consumoForm.reset();
       }
     });
   }
@@ -358,7 +331,8 @@ export class BitacoraActividadV2Component implements OnInit {
   }
 
   updateCache() {
-    localStorage.setItem('data-cache', JSON.stringify(this.bitacoraForm.value));
+    let json = LZString.compress(JSON.stringify(this.bitacoraForm.value));
+    localStorage.setItem('data-cache', json);
   }
 
   cleanCache() {
