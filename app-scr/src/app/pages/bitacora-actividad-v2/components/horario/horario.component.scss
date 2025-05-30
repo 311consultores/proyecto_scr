@@ -41,8 +41,9 @@ mat-icon {
 .list-horario {
   margin-top: 10px;
   padding: 0;
-  max-height: 250px;
+  max-height: 150px;
   overflow-y: auto;
+  scrollbar-gutter: stable;
 
   .list-item-horario {
     margin-top: 5px;

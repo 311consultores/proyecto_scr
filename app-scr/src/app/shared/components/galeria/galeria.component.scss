@@ -1,119 +1,107 @@
-.carousel-container {
+.miniatura {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .overlay-contador {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        padding: 2px 6px;
+        font-size: 16px;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+}
+
+.modal-galeria {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .galeria-contenido {
+    position: relative;
+    z-index: 1;
+    max-width: 90vw;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo negro para el contenedor */
-}
 
-.carousel {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    max-height: 200px; /* Alto máximo para el carrusel */
-    overflow: hidden;
-    display: flex;
-    align-items: center; /* Centrar verticalmente */
-    justify-content: center; /* Centrar horizontalmente */
-}
+    img {
+      max-height: 80vh;
+      max-width: 100%;
+      object-fit: contain;
+      margin-bottom: 1rem;
+    }
 
-.carousel img {
-    max-width: auto; /* La imagen no excederá el ancho del contenedor */
-    max-height: 200px; /* La imagen no excederá el alto del contenedor */
-    width: auto; /* Mantener el ancho original */
-    height: auto; /* Mantener el alto original */
-    object-fit: contain; /* Mantener relación de aspecto y centrar */
-}
+    .controles {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
 
-.nav-button {
+      .btn-eliminar,
+      .btn-cerrar {
+        background-color: #fff;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .btn-eliminar {
+        color: red;
+      }
+    }
+  }
+
+  // Flechas fijas laterales
+  .nav-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
+    background-color: rgba(255, 255, 255, 0.85);
+    color: #333;
     border: none;
-    padding: 10px;
+    font-size: 24px;
+    padding: 8px 12px;
     cursor: pointer;
-    text-decoration: none;
-    z-index: 2; /* Asegurar que los botones estén sobre la imagen */
-}
+    border-radius: 50%;
+    z-index: 2;
+    user-select: none;
 
-.nav-button.prev {
+    &:hover {
+      background-color: #fff;
+    }
+  }
+
+  .nav-left {
     left: 10px;
-}
+  }
 
-.nav-button.next {
+  .nav-right {
     right: 10px;
-}
-
-.preview {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-}
-
-.preview-thumbnail {
-    margin: 0 5px;
-    cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.3s;
-}
-
-.preview-thumbnail.active {
-    opacity: 1;
-}
-
-.btn-Eliminar {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translate(-50%);
-}
-/* Estilos para el modal */
-.modal {
-    display: none; /* Oculto por defecto */
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9); /* Fondo oscuro */
-    overflow: auto;
-}
-
-.modal.show {
-    display: block; /* Mostrar cuando isModalOpen es true */
-}
-
-.modal-content {
-    position: relative;
-    margin: auto;
-    padding: 20px;
-    width: 90%;
-    max-width: 800px;
-    top: 50%;
-    transform: translateY(-50%);
-    text-align: center;
-}
-
-.modal-image {
-    max-width: 100%;
-    max-height: 80vh; /* Limitar la altura de la imagen */
-    object-fit: contain;
-}
-
-.close {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    color: white;
-    font-size: 30px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover {
-    color: #ccc;
+  }
 }

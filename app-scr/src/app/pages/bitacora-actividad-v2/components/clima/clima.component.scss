@@ -41,8 +41,9 @@ mat-icon {
 .list-clima {
   margin-top: 10px;
   padding: 0;
-  max-height: 250px;
+  max-height: 150px;
   overflow-y: auto;
+  scrollbar-gutter: stable;
 
   .list-item-clima {
     margin-top: 5px;

@@ -45,6 +45,7 @@ export class ConsumoComponent {
   public consumoForm!: FormGroup;
   public consumoElement!: FormGroup;
   public dialogRef!: MatDialogRef<any>;
+  public consumoIndex: number = -1;
 
   constructor(
     private fb : FormBuilder,
@@ -52,6 +53,7 @@ export class ConsumoComponent {
     private snackBar: MatSnackBar,
   ) {
     this.initConsumo();
+    this.initConsumoForm();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -83,46 +85,38 @@ export class ConsumoComponent {
     });
   }
 
-  openConsumoModal(event :  Event, data: any = null, iConsumo = -1): void {
+  onEdit(event :  Event, data: any = null, iConsumo = -1): void {
     event.stopPropagation();
     this.initConsumoForm();
     
     if(data != null) {
       this.consumoForm.setValue(data);
+      this.consumoIndex = iConsumo;
     }
-    this.dialogRef = this.dialog.open(this.modal, {
-      maxWidth: '100vw',
-      width: '95%',
-      panelClass: 'full-screen-modal',
-      disableClose: true,
-      hasBackdrop: true
-    });
+  }
 
-    const consumoIndex = iConsumo;
-
-    this.dialogRef.afterClosed().subscribe(result => {
+  onSubmit(): void {
+    if (this.consumoForm.valid) {
+      let result = this.consumoForm.value;
       if (result) {
         const currentArray = this.consumoElement.get('consumos')?.value || [];
         let newArray;
 
-        if (consumoIndex >= 0) { // O si usas ID: if (result.id)
+        if (this.consumoIndex >= 0) { // O si usas ID: if (result.id)
           newArray = [...currentArray];
-          newArray[consumoIndex] = result; // Reemplaza el elemento en el índice
+          newArray[this.consumoIndex] = result; // Reemplaza el elemento en el índice
+          this.consumoIndex = -1;
+          this.showSnackbar('Consumo actualizado correctamente');
         } 
         // Caso 2: Agregar (si no hay índice/ID)
         else {
           newArray = [...currentArray, result];
+          this.showSnackbar('Consumo añadido correctamente');
         }
         this.consumoElement.get('consumos')?.setValue(newArray);
         this.getConsumoElement.emit(this.consumoElement.value);
         this.consumoForm.reset();
       }
-    });
-  }
-
-  onSubmit(): void {
-    if (this.consumoForm.valid) {
-      this.dialogRef.close(this.consumoForm.value);
     } else {
       this.consumoForm.markAllAsTouched();
     }
@@ -134,7 +128,7 @@ export class ConsumoComponent {
     newArray.splice(index, 1);
     this.consumoElement.get('consumos')?.setValue(newArray);
     this.getConsumoElement.emit(this.consumoElement.value);
-    this.showSnackbar('Item eliminado correctamente');
+    this.showSnackbar('Consumo eliminado correctamente');
   }
 
   drop(event: CdkDragDrop<string[]>) {

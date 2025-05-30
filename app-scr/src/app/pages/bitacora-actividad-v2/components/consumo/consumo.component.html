@@ -1,14 +1,50 @@
 <div class="container-fluid">
-    <div class="row">
-        <div class="col">
-            <h2 class="h4 text-primary py-1 my-0">Listado</h2>
+    <form [formGroup]="consumoForm" (ngSubmit)="onSubmit()" class="row">
+        <div class="col-sm-12">
+            <!-- Descripcion -->
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Descripción</mat-label>
+                <input matInput type="text" formControlName="descripcion" placeholder="Ej: Pintura" style="text-transform: uppercase;">
+                <mat-icon matSuffix>description</mat-icon>
+                <mat-error class="text-truncate" *ngIf="consumoForm.get('descripcion')?.hasError('required')">
+                    Campo requerido
+                </mat-error>
+            </mat-form-field>
         </div>
-        <div class="col d-flex justify-content-end">
-            <button mat-raised-button color="accent" (click)="openConsumoModal($event)">
-                <mat-icon>playlist_add</mat-icon> Agregar
+        <div class="col-sm-12 col-md-5">
+            <!-- Cantidad -->
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label class="text-truncate">Cantidad</mat-label>
+                <input matInput type="number" formControlName="cantidad">
+                <mat-icon matSuffix>plus_one</mat-icon>
+                <mat-error *ngIf="consumoForm.get('cantidad')?.hasError('required')">
+                    Campo requerido
+                </mat-error>
+            </mat-form-field>
+        </div>  
+        <div class="col-sm-12 col-md-7">
+            <!-- Unidad de Medida -->
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label class="text-truncate">U.M</mat-label>
+                <input matInput type="text" formControlName="unidad_medida" style="text-transform: uppercase;" placeholder="Unidad de medida">
+                <mat-icon matSuffix>square_foot</mat-icon>
+                <mat-error class="text-truncate" *ngIf="consumoForm.get('unidad_medida')?.hasError('required')">
+                    Campo requerido
+                </mat-error>
+            </mat-form-field>
+        </div>
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h2 class="h4 text-primary py-1 my-0">Listado</h2>
+            <button mat-raised-button
+                    tabindex="5"
+                    color="primary" 
+                    type="submit"
+                    [disabled]="consumoForm.invalid">
+                <mat-icon>save</mat-icon>
+                Guardar
             </button>
         </div>
-    </div>
+    </form>
     <div class="row">
         <div class="col-12">
             @if((this.consumoElement.get('consumos')?.value || []).length > 0) {
@@ -16,7 +52,7 @@
                     <div cdkDropList (cdkDropListDropped)="drop($event)">
                         @for (consumo of this.consumoElement.get('consumos')?.value; track $index) {
                             <div cdkDrag class="list-item-consumo border">
-                                <div cdkDragHandle class="text-list drag-handle" (click)="openConsumoModal($event, consumo, $index)">
+                                <div cdkDragHandle class="text-list drag-handle" (click)="onEdit($event, consumo, $index)">
                                     <div class="title text-truncate">
                                         <strong>{{consumo.descripcion}}</strong>
                                     </div>
@@ -48,60 +84,3 @@
         </div>
     </div>
 </div>
-<ng-template #modal>
-    <h2 mat-dialog-title class="d-flex align-items-center gap-2 pt-3 mb-0">
-        <mat-icon>shelves</mat-icon>
-        Registro de consumos
-    </h2>
-    <mat-dialog-content class="py-0 mt-0">
-        <form [formGroup]="consumoForm" (ngSubmit)="onSubmit()" class="row px-2 pt-4">
-            <div class="col-sm-12">
-                <!-- Descripcion -->
-                <mat-form-field appearance="outline" class="w-100">
-                    <mat-label>Descripción</mat-label>
-                    <input matInput type="text" formControlName="descripcion"  tabindex="1" autofocus placeholder="Ej: Pintura" style="text-transform: uppercase;">
-                    <mat-icon matSuffix>description</mat-icon>
-                    <mat-error class="text-truncate" *ngIf="consumoForm.get('descripcion')?.hasError('required')">
-                        Campo requerido
-                    </mat-error>
-                </mat-form-field>
-            </div>
-            <div class="col-sm-12 col-md-5">
-                <!-- Cantidad -->
-                <mat-form-field appearance="outline" class="w-100">
-                    <mat-label class="text-truncate">Cantidad</mat-label>
-                    <input matInput type="number" formControlName="cantidad" tabindex="3">
-                    <mat-icon matSuffix>plus_one</mat-icon>
-                    <mat-error *ngIf="consumoForm.get('cantidad')?.hasError('required')">
-                        Campo requerido
-                    </mat-error>
-                </mat-form-field>
-            </div>  
-            <div class="col-sm-12 col-md-7">
-                <!-- Unidad de Medida -->
-                <mat-form-field appearance="outline" class="w-100">
-                    <mat-label class="text-truncate">U.M</mat-label>
-                    <input matInput type="text" formControlName="unidad_medida" tabindex="2" style="text-transform: uppercase;" placeholder="Unidad de medida">
-                    <mat-icon matSuffix>square_foot</mat-icon>
-                    <mat-error class="text-truncate" *ngIf="consumoForm.get('unidad_medida')?.hasError('required')">
-                        Campo requerido
-                    </mat-error>
-                </mat-form-field>
-            </div>       
-            <mat-dialog-actions class="col-12 mt-2" align="end">
-                <button mat-raised-button  mat-dialog-close color="warn">
-                    <mat-icon>close</mat-icon>
-                    Cancelar
-                </button>
-                <button mat-raised-button
-                        tabindex="5"
-                        color="primary" 
-                        type="submit"
-                        [disabled]="consumoForm.invalid">
-                    <mat-icon>save</mat-icon>
-                    Guardar
-                </button>
-            </mat-dialog-actions>
-        </form>
-    </mat-dialog-content>
-</ng-template>
