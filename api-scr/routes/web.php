@@ -33,6 +33,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->post('guardarDetBitacora', 'BitacoraController@guardarDetBitacora');
         $router->get('exportarPDF/{id}', 'BitacoraController@exportPDF');
         $router->post('finalizarBitacora','BitacoraController@finalizarBitacora');
+        $router->post('obtenerPrevisualizacion', 'BitacoraController@obtenerPrevisualizacion');
         //Admin
         $router->group(['prefix' => 'admin'], function () use ($router) {
             $router->get('index/{rows}', 'BitacoraController@adminIndex');

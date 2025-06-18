@@ -275,6 +275,10 @@ class BitacoraController extends Controller
         }
     }
 
+    public function obtenerPrevisualizacion(Request $request) {
+        $pdf = BitacoraExport::preview($request);
+        return ["ok" => true, "data"=> $pdf];
+    }
     //Genericos
     public function editarBitacora(Request $request) {
         try {
