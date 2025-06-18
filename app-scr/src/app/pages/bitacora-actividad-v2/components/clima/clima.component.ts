@@ -44,6 +44,7 @@ export class ClimaComponent {
   public climaForm!: FormGroup;
   public climaElement!: FormGroup;
   public dialogRef!: MatDialogRef<any>;
+  public climaIndex: number = -1;
 
   public unidades = {
     temp: '°C',
@@ -60,6 +61,7 @@ export class ClimaComponent {
     private snackBar: MatSnackBar,
   ) {
     this.initClima();
+    this.initClimaForm();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -96,46 +98,35 @@ export class ClimaComponent {
     });
   }
 
-  openClimaModal(event :  Event, data: any = null, iClima = 0): void {
+  onEdit(event :  Event, data: any = null, iClima = 0): void {
     event.stopPropagation();
-    this.initClimaForm();
-    
     if(data != null) {
       this.climaForm.setValue(data);
+      this.climaIndex = iClima;
     }
-    this.dialogRef = this.dialog.open(this.modal, {
-      maxWidth: '100vw',
-      width: '95%',
-      panelClass: 'full-screen-modal',
-      disableClose: true,
-      hasBackdrop: true
-    });
-
-    const climaIndex = iClima;
-
-    this.dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        const currentArray = this.climaElement.get('climas')?.value || [];
-        let newArray;
-
-        if (climaIndex > 0) { // O si usas ID: if (result.id)
-          newArray = [...currentArray];
-          newArray[climaIndex] = result; // Reemplaza el elemento en el índice
-        } 
-        // Caso 2: Agregar (si no hay índice/ID)
-        else {
-          newArray = [...currentArray, result];
-        }
-        this.climaElement.get('climas')?.setValue(newArray);
-        this.getClimaElement.emit(this.climaElement.value);
-        this.climaForm.reset();
-      }
-    });
   }
 
   onSubmit(): void {
     if (this.climaForm.valid) {
-      this.dialogRef.close(this.climaForm.value);
+      let result = this.climaForm.value;
+      const currentArray = this.climaElement.get('climas')?.value || [];
+      let newArray;
+
+      console.log(this.climaIndex);
+      if (this.climaIndex >= 0) { // O si usas ID: if (result.id)
+        newArray = [...currentArray];
+        newArray[this.climaIndex] = result; // Reemplaza el elemento en el índice
+        this.showSnackbar('Clima actualizado correctamente');
+        this.climaIndex = -1;
+      } 
+      // Caso 2: Agregar (si no hay índice/ID)
+      else {
+        newArray = [...currentArray, result];
+        this.showSnackbar('Clima añadido correctamente');
+      }
+      this.climaElement.get('climas')?.setValue(newArray);
+      this.getClimaElement.emit(this.climaElement.value);
+      this.climaForm.reset();
     } else {
       this.climaForm.markAllAsTouched();
     }
@@ -147,7 +138,7 @@ export class ClimaComponent {
     newArray.splice(index, 1);
     this.climaElement.get('climas')?.setValue(newArray);
     this.getClimaElement.emit(this.climaElement.value);
-    this.showSnackbar('Item eliminado correctamente');
+    this.showSnackbar('Clima eliminado correctamente');
   }
 
   private showSnackbar(message: string): void {

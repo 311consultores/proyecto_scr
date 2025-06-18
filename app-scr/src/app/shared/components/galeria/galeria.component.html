@@ -1,25 +1,38 @@
-<div class="carousel-container">
-  <div class="carousel">
-    @if(images.length > 0) {
+<!-- Imagen miniatura 100x100 -->
+<div class="miniatura" (click)="openModal(images.length - 1)">
+  <img
+    [src]="images[images.length - 1]?.url_path || '/imagenes/no-image.jpg'"
+    alt="Última imagen"
+  />
+  <div class="overlay-contador" *ngIf="images.length > 1">
+    +{{ images.length - 1 }}
+  </div>
+</div>
+
+<!-- Modal de galería -->
+<div class="modal-galeria" *ngIf="isModalOpen">
+  <div class="overlay" (click)="closeModal()"></div>
+
+  <div class="galeria-contenido">
+    <!-- Botones fijos -->
+    <button type="button" class="nav-btn nav-left" (click)="prevImage()">&#10094;</button>
+    <button type="button" class="nav-btn nav-right" (click)="nextImage()">&#10095;</button>
+
+    <!-- Imagen centrada -->
     <img
-      [src]="
-        images[currentIndex] != undefined
-          ? images[currentIndex].url_path
-          : '/imagenes/no-image.jpg'
-      "
-      alt="Carousel Image"
-      class="img-responsive"
+      [src]="images[currentIndex]?.url_path || '/imagenes/no-image.jpg'"
+      alt="Imagen grande"
     />
-    <a class="nav-button prev" (click)="prevImage()">&#10094;</a>
-    <a class="nav-button next" (click)="nextImage()">&#10095;</a>
-    @if(images[currentIndex] != undefined) {
-    <fa-icon
-      class="btn btn-sm btn-danger btn-Eliminar"
-      [icon]="['fas', 'trash']"
-      (click)="eliminarImagen(currentIndex)"
-    ></fa-icon>
-    } } @else {
-    <img src="/imagenes/no-image.jpg" class="img-responsive w-100" />
-    }
+
+    <!-- Controles -->
+    <div class="controles">
+      <fa-icon
+        *ngIf="images[images.length - 1]?.url_path"
+        [icon]="['fas', 'trash']"
+        class="btn-eliminar"
+        (click)="eliminarImagen(currentIndex)"
+      ></fa-icon>
+      <button type="button" class="btn-cerrar" (click)="closeModal()">Cerrar</button>
+    </div>
   </div>
 </div>

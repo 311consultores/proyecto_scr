@@ -13,21 +13,63 @@
     font-size: 18px;
     font-weight: 500;
 }
+
 /* --- Secciones de fotos --- */
 .photo-section {
   background: #f9f9f9;
-  padding: 16px;
-  border-radius: 6px;
+  padding: 16px 16px 0px 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   height: 100%;
-}
-.section-title {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #444;
-  font-size: 16px;
-  font-weight: 400;
-  margin-bottom: 12px;
+  flex-direction: column;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 16px;
+
+    mat-icon {
+      font-size: 20px;
+      color: #2196f3;
+    }
+  }
+
+  .photo-grid {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+
+    app-galeria {
+      width: 100px;
+      height: 100px;
+      flex-shrink: 0;
+    }
+
+    .photo-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 100px;
+      flex-grow: 1;
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 14px;
+        padding: 6px 10px;
+        white-space: nowrap;
+      }
+    }
+  }
 }
 
 /* --- Botones --- */

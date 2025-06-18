@@ -150,6 +150,13 @@ export class WebcamComponent implements OnChanges {
       return;
     }
 
+    // Tamaño fijo deseado
+    const fixedWidth = 640;
+    const fixedHeight = 480;
+
+    canvas.width = fixedWidth;
+    canvas.height = fixedHeight;
+
     // Obtener dimensiones originales del video
     const videoWidth = video.videoWidth || video.clientWidth;
     const videoHeight = video.videoHeight || video.clientHeight;
@@ -159,20 +166,20 @@ export class WebcamComponent implements OnChanges {
       return;
     }
 
-    // Establecer tamaño del canvas con las dimensiones originales
-    canvas.width = videoWidth;
-    canvas.height = videoHeight;
+    // Escalar proporcionalmente tipo "contain"
+    const ratio = Math.min(fixedWidth / videoWidth, fixedHeight / videoHeight);
+    const scaledWidth = videoWidth * ratio;
+    const scaledHeight = videoHeight * ratio;
 
-    // Dibujar la imagen original en el canvas
-    context.drawImage(video, 0, 0, videoWidth, videoHeight);
+    const offsetX = (fixedWidth - scaledWidth) / 2;
+    const offsetY = (fixedHeight - scaledHeight) / 2;
 
-    // Convertir canvas a imagen en formato JPEG
+    context.drawImage(video, offsetX, offsetY, scaledWidth, scaledHeight);
+
     try {
-      const photoUrl = canvas.toDataURL('image/jpeg', 0.9); // Calidad del 90%
+      const photoUrl = canvas.toDataURL('image/png', 0.9);
       this._bitacoraService
-        .subirFotoTemp({
-          fotografia: photoUrl,
-        })
+        .subirFotoTemp({ fotografia: photoUrl })
         .subscribe({
           next: (response) => {
             if (response.ok) {

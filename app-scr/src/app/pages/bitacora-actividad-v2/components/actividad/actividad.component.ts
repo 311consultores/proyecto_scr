@@ -131,73 +131,69 @@ export class ActividadComponent {
     });
   }
 
-  subirImagenes(event: any, tipo : number) {
+  subirImagenes(event: any, tipo: number) {
     const archivos = event.target.files;
     if (archivos.length > 0) {
       for (let archivo of archivos) {
         const reader = new FileReader();
+
         reader.onload = (e: any) => {
           const img = new Image();
           img.src = e.target.result;
 
           img.onload = () => {
-            // Configuración óptima para PDF
-            const maxWidth = 800; // Ancho máximo recomendado
-            const maxHeight = 600; // Alto máximo recomendado
-            let width = img.width;
-            let height = img.height;
-
-            // Redimensionar manteniendo aspect ratio
-            if (width > maxWidth) {
-              height = (maxWidth / width) * height;
-              width = maxWidth;
-            }
-            if (height > maxHeight) {
-              width = (maxHeight / height) * width;
-              height = maxHeight;
-            }
+            const fixedWidth = 640;
+            const fixedHeight = 480;
 
             const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
+            canvas.width = fixedWidth;
+            canvas.height = fixedHeight;
 
             const context = canvas.getContext('2d');
-
             if (!context) {
-              console.error(
-                'Error: No se pudo obtener el contexto del canvas.'
-              );
+              console.error('Error: No se pudo obtener el contexto del canvas.');
               return;
             }
 
-            context.drawImage(img, 0, 0, width, height);
+            // Escalar proporcionalmente tipo "contain"
+            const ratio = Math.min(fixedWidth / img.width, fixedHeight / img.height);
+            const scaledWidth = img.width * ratio;
+            const scaledHeight = img.height * ratio;
 
-            // Calidad reducida a 75% (óptimo para PDF)
-            const fotoConvertida = canvas.toDataURL('image/jpeg', 0.75);
+            const offsetX = (fixedWidth - scaledWidth) / 2;
+            const offsetY = (fixedHeight - scaledHeight) / 2;
 
-            const loading = this.snackBar.open('Guardando las imagenes...', '', {
-              duration: 6000
+            context.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+
+            const fotoConvertida = canvas.toDataURL('image/png', 0.9);
+
+            const loading = this.snackBar.open('Guardando las imágenes...', '', {
+              duration: 6000,
             });
+
             this._bitacoraService
-              .subirFotoTemp({
-                fotografia: fotoConvertida,
-              })
+              .subirFotoTemp({ fotografia: fotoConvertida })
               .subscribe({
                 next: (response) => {
                   if (response.ok) {
                     loading.dismiss();
-                    const fotos = tipo == 1 ? 
-                      this.actividadForm.get('fotos_ant')?.value || [] :
-                      this.actividadForm.get('fotos_des')?.value || [];
-                    let newArray = [...fotos, response.data];
-                    tipo == 1 ? 
-                    this.actividadForm.get('fotos_ant')?.setValue(newArray) :
-                    this.actividadForm.get('fotos_des')?.setValue(newArray);
+
+                    const fotos =
+                      tipo === 1
+                        ? this.actividadForm.get('fotos_ant')?.value || []
+                        : this.actividadForm.get('fotos_des')?.value || [];
+
+                    const newArray = [...fotos, response.data];
+
+                    tipo === 1
+                      ? this.actividadForm.get('fotos_ant')?.setValue(newArray)
+                      : this.actividadForm.get('fotos_des')?.setValue(newArray);
                   }
                 },
               });
           };
         };
+
         reader.readAsDataURL(archivo);
       }
     }

@@ -44,6 +44,7 @@ export class HorarioComponent {
   public horarioForm!: FormGroup;
   public horarioElement!: FormGroup;
   public dialogRef!: MatDialogRef<any>;
+  public horarioIndex: number = -1;
 
   constructor(
     private fb : FormBuilder,
@@ -51,6 +52,7 @@ export class HorarioComponent {
     private snackBar: MatSnackBar,
   ) {
     this.initHorario();
+    this.initHorarioForm();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -83,47 +85,36 @@ export class HorarioComponent {
     });
   }
 
-  openHorarioModal(event :  Event, data: any = null, iHorario = 0): void {
+  onEdit(event :  Event, data: any = null, iHorario = 0): void {
     event.stopPropagation();
-    this.initHorarioForm();
-    this.horarioForm.get('horario_fin')?.disable();
-    
     if(data != null) {
       this.horarioForm.setValue(data);
+      this.horarioIndex = iHorario;
     }
-    this.dialogRef = this.dialog.open(this.modal, {
-      maxWidth: '100vw',
-      width: '95%',
-      panelClass: 'full-screen-modal',
-      disableClose: true,
-      hasBackdrop: true
-    });
+  }
 
-    const horarioIndex = iHorario;
-
-    this.dialogRef.afterClosed().subscribe(result => {
+  onSubmit(): void {
+    if (this.horarioForm.valid) {
+      let result = this.horarioForm.value;
       if (result) {
         const currentArray = this.horarioElement.get('horarios')?.value || [];
         let newArray;
 
-        if (horarioIndex > 0) { // O si usas ID: if (result.id)
+        if (this.horarioIndex >= 0) { // O si usas ID: if (result.id)
           newArray = [...currentArray];
-          newArray[horarioIndex] = result; // Reemplaza el elemento en el índice
+          newArray[this.horarioIndex] = result; // Reemplaza el elemento en el índice
+          this.horarioIndex = -1;
+          this.showSnackbar('Horario actualizado correctamente');
         } 
         // Caso 2: Agregar (si no hay índice/ID)
         else {
           newArray = [...currentArray, result];
+          this.showSnackbar('Horario añadido correctamente');
         }
         this.horarioElement.get('horarios')?.setValue(newArray);
         this.getHorarioElement.emit(this.horarioElement.value);
         this.horarioForm.reset();
       }
-    });
-  }
-
-  onSubmit(): void {
-    if (this.horarioForm.valid) {
-      this.dialogRef.close(this.horarioForm.value);
     } else {
       this.horarioForm.markAllAsTouched();
     }
@@ -135,7 +126,7 @@ export class HorarioComponent {
     newArray.splice(index, 1);
     this.horarioElement.get('horarios')?.setValue(newArray);
     this.getHorarioElement.emit(this.horarioElement.value);
-    this.showSnackbar('Item eliminado correctamente');
+    this.showSnackbar('Horario eliminado correctamente');
   }
 
   setFechaFin() {
